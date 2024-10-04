@@ -221,7 +221,7 @@ public class clubfair extends LinearOpMode {
             }
         }
         // Save more CPU resources when camera is no longer needed.
-        visionPortal.close();
+        //visionPortal.close();
     }
 
     public void setPower() {
