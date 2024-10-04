@@ -54,7 +54,7 @@ public class clubfair extends LinearOpMode {
     private ElapsedTime     runtime = new ElapsedTime();
 
     // IMU - Includes Gyroscope / Acceleromotor / Thermometer and a lot lot more random stuff
-    private BNO055IMU imu;
+    //private BNO055IMU imu;
 
 
     //Create Motor Variables
@@ -150,17 +150,6 @@ public class clubfair extends LinearOpMode {
         candy_SHOOTER_position = candy_SHOOTER.getCurrentPosition();
         //candy_SHOOTER.setVelocity(2000);
 
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.mode                = BNO055IMU.SensorMode.IMU;
-        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.accelPowerMode      = BNO055IMU.AccelPowerMode.NORMAL;
-        parameters.loggingEnabled      = false;
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
-        imu.initialize(parameters);
-        acceleration = new Acceleration();
-        orientation = imu.getAngularOrientation();
-        startRobotAngle = orientation.firstAngle;
 
         telemetry.addData("Mode", "calibrating...");
         telemetry.update();
@@ -178,35 +167,9 @@ public class clubfair extends LinearOpMode {
             code_start_time = runtime.seconds();
             while (opModeIsActive()) {
 
-                //AprilTag Stuff START
-                int aprilTagsDetected = 0;
-                double[][] newAprilTagInfos = null;
-                if (iterations % 1 == 0 ) {
-                    //  newAprilTagInfos = telemetryAprilTag();
-                    if (newAprilTagInfos != null) {
-                        aprilTagInfos = newAprilTagInfos;
-                    }
-                }
 
-                if (rightangle_active) {
-                    if (Math.abs(Help.trueAngleDif(desiredRobotAngle,imu.getAngularOrientation().firstAngle)) > 5){
-                        rotate("", desiredRobotAngle);
-                    }
-                    else {
-                        rightangle_active = false;
-                    }
-                }
                 double now_time = runtime.seconds();
-                if (!isStrafing && strafeStartingAngle != -1000.0 && now_time-strafeEndTime > 0.5) {
-                    desiredRobotAngle = strafeStartingAngle;
-                    if (Math.abs(Help.trueAngleDif(desiredRobotAngle,imu.getAngularOrientation().firstAngle)) > 5){
-                        rotate("", desiredRobotAngle);
-                    }
-                    else {
-                        strafeStartingAngle = -1000.0;
-                    }
-                }
-
+                
                 if (y_last_held != -1.0) {
                     double delta = runtime.seconds()-y_last_held;
                     if (delta < 0.1) {
@@ -231,25 +194,14 @@ public class clubfair extends LinearOpMode {
                 }
                 clock(now_time);
                 last_time = now_time; //To find time differentials between loops.
-                orientation = imu.getAngularOrientation();
                 iterations +=1;
 
 
                 ////----VARIABLE MONITORING----////
 
                 telemetry.addData("orientation", orientation);
-                telemetry.addData("velocity", imu.getVelocity());
-                telemetry.addData("acceleration_x", imu.getAcceleration().xAccel);
-                telemetry.addData("acceleration_y", imu.getAcceleration().yAccel);
-                telemetry.addData("acceleration_z", imu.getAcceleration().zAccel);
-
-                telemetry.addData("firstAngle", imu.getAngularOrientation().firstAngle);
-                telemetry.addData("desiredAngle", desiredRobotAngle);
-                telemetry.addData("angleDifference", Help.trueAngleDif(desiredRobotAngle,imu.getAngularOrientation().firstAngle));
 
                 telemetry.addData("90 degree active", rightangle_active);
-                telemetry.addData("strafeCorrection", strafeStartingAngle);
-                telemetry.addData("strafeEndTimeDifferential", runtime.seconds() - strafeEndTime);
                 telemetry.addData("candy_SHOOTER_currentPosition", candy_SHOOTER.getCurrentPosition());
                 telemetry.addData("candy_SHOOTER_position", candy_SHOOTER_position);
                 telemetry.update();
@@ -306,15 +258,6 @@ public class clubfair extends LinearOpMode {
         }
         //Rotate 90
         // If there are any joystick moveemnts during this, cancel rotation
-        if (gamepad1.dpad_right && !rightangle_active) {
-            rightangle_active = true;
-            desiredRobotAngle = Help.angleCorrection(imu.getAngularOrientation().firstAngle, -90);
-
-        }
-        else if (gamepad1.dpad_left && !rightangle_active){
-            rightangle_active = true;
-            desiredRobotAngle = Help.angleCorrection(imu.getAngularOrientation().firstAngle, 90);
-        }
 
         if (gamepad1.y) {
             if (candy_SHOOTER.getCurrentPosition() <= candy_SHOOTER_position+20.0) {
@@ -426,34 +369,7 @@ public class clubfair extends LinearOpMode {
         whl_RF_percent += RF*WHEEL_METER_CONSTANT;
     }
 
-    public void rotate(String type, double angle) {
-        //set whl mode to power
-        //setWheelMode("power");
-
-        //Based on angle difference, rotate left / right
-        double angleDif = Help.trueAngleDif(angle, imu.getAngularOrientation().firstAngle);
-
-        angleDif = Help.trueAngleDif(angle, imu.getAngularOrientation().firstAngle);
-        //telemetry.addData("a", angleDif);
-        //telemetry.addData("b", imu.getAngularOrientation().firstAngle);
-        //telemetry.update();
-        if (angleDif > 0) {
-            //Rotate to the LEFT?
-            double power= -1 * Math.abs(angleDif / 45);
-            power = (power < -1) ? -1 : power;
-            power = (power > -0.7) ? -0.7 : power;
-            twoDriveHandling(0, power);
-        }
-        else if (angleDif < 0) {
-            //Rotate to the RIGHT?
-            double power = 1 * Math.abs(angleDif / 45);
-            power = (power >1) ? 1 : power;
-            power = (power <0.7) ? 0.7 : power;
-            twoDriveHandling(0, power);
-        }
-        //Goal is reached, function end
-
-    }
+   
 
     //Ready
 
@@ -544,93 +460,7 @@ public class clubfair extends LinearOpMode {
             whl_RF_percent -= 0.5;
         }
 
-        if (gamepad1.left_trigger > 0.8) {
-            whl_LB_percent += 1;
-            whl_LF_percent -= 0.9;
-            whl_RB_percent -= 1;
-            whl_RF_percent += 0.9;
-            if (!isStrafing){
-                isStrafing = true;
-                strafeStartingAngle = imu.getAngularOrientation().firstAngle;
-            }
-        }
-        else if (gamepad1.right_trigger > 0.8) {
-            whl_LB_percent -= 1;
-            whl_LF_percent += 0.9;
-            whl_RB_percent += 1;
-            whl_RF_percent -= 0.9;
-            if (!isStrafing){
-                isStrafing = true;
-                strafeStartingAngle = imu.getAngularOrientation().firstAngle;
-            }
-        }
-        else if (isStrafing) {
-            isStrafing = false;
-            strafeEndTime = runtime.seconds();
-        }
     }
-
-    private void initAprilTag() {
-
-        // Create the AprilTag processor the easy way.
-        aprilTag = AprilTagProcessor.easyCreateWithDefaults();
-
-        // Create the vision portal the easy way.
-        if (USE_WEBCAM) {
-            visionPortal = VisionPortal.easyCreateWithDefaults(
-                    hardwareMap.get(WebcamName.class, "Webcam 1"), aprilTag);
-        } else {
-            visionPortal = VisionPortal.easyCreateWithDefaults(
-                    BuiltinCameraDirection.BACK, aprilTag);
-        }
-
-    }   // end method initAprilTag()
-
-    /**
-     * Add telemetry about AprilTag detections.
-     */
-    private double[][] telemetryAprilTag() {
-
-        List<AprilTagDetection> currentDetections = aprilTag.getDetections();
-        //telemetry.addData("# AprilTags Detected", currentDetections.size());
-        double[][] aprilTagInfos = new double[10][9];
-        // Step through the list of detections and display info for each one.
-        int iteration = 0;
-        for (AprilTagDetection detection : currentDetections) {
-            if (detection.metadata != null) {
-                telemetry.addLine(String.format("\n==== (ID %d) %s", detection.id, detection.metadata.name));
-                telemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (inch)", detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.z));
-                telemetry.addLine(String.format("PRY %6.1f %6.1f %6.1f  (deg)", detection.ftcPose.pitch, detection.ftcPose.roll, detection.ftcPose.yaw));
-                telemetry.addLine(String.format("RBE %6.1f %6.1f %6.1f  (inch, deg, deg)", detection.ftcPose.range, detection.ftcPose.bearing, detection.ftcPose.elevation));
-                aprilTagInfos[iteration][0] = detection.ftcPose.x;
-                aprilTagInfos[iteration][1] = detection.ftcPose.y;
-                aprilTagInfos[iteration][2] = detection.ftcPose.z;
-                aprilTagInfos[iteration][3] = detection.ftcPose.pitch;
-                aprilTagInfos[iteration][4] = detection.ftcPose.roll;
-                aprilTagInfos[iteration][5] = detection.ftcPose.yaw;
-                aprilTagInfos[iteration][6] = detection.ftcPose.range;
-                aprilTagInfos[iteration][7] = detection.ftcPose.bearing;
-                aprilTagInfos[iteration][8] = detection.ftcPose.elevation;
-                iteration+=1;
-            } else {
-                telemetry.addLine(String.format("\n==== (ID %d) Unknown", detection.id));
-                telemetry.addLine(String.format("Center %6.0f %6.0f   (pixels)", detection.center.x, detection.center.y));
-
-                telemetry.update();
-            }
-        }   // end for() loop
-
-        // Add "key" information to telemetry
-        /*
-        telemetry.addLine("\nkey:\nXYZ = X (Right), Y (Forward), Z (Up) dist.");
-        telemetry.addLine("PRY = Pitch, Roll & Yaw (XYZ Rotation)");
-        telemetry.addLine("RBE = Range, Bearing & Elevation");
-*/
-        //telemetry.update();
-        aprilTagInfos[9][0] = (double) iteration;
-        return aprilTagInfos;
-    }   // end method telemetryAprilTag()
-
 
 }
   
