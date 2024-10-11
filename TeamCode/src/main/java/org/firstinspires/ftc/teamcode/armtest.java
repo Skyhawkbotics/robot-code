@@ -90,6 +90,10 @@ public class armtest extends LinearOpMode {
     double uncode_start_time = 0.0;
     boolean left_bumper_DOWN = false;
 
+
+
+    int candy_SPEED = 0;
+
     //aprilTag setup
     private static final boolean USE_WEBCAM = true;  // true for webcam, false for phone camera
 
@@ -230,10 +234,10 @@ public class armtest extends LinearOpMode {
 
         if (gamepad1.y) {
             candy_SHOOTER.setVelocity(100);
-            candy_SHOOTER_position += 1;
+            candy_SHOOTER_position += candy_SPEED;
         } else if (gamepad1.a) {
             candy_SHOOTER.setVelocity(-100);
-            candy_SHOOTER_position += -1;
+            candy_SHOOTER_position += -candy_SPEED;
         } else {
             candy_SHOOTER.setVelocity(0);
         }
