@@ -15,21 +15,22 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.tuning.TuningOpModes;
 
+
+//built from LocalizationTest, but adding the arm stuff
 @TeleOp(name="MAIN_opmode")
 public class opmode_MAIN extends LinearOpMode {
 
-    //setup arm
+    //setup arm variable
     private DcMotorEx arm;
-    arm = hardwareMap.get(DcMotorEx.class, "arm");
-    arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-    arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
 
     @Override
     public void runOpMode() throws InterruptedException {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
-
+        //setup arm to use velicity
+        arm = hardwareMap.get(DcMotorEx.class, "arm");
+        arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         if (TuningOpModes.DRIVE_CLASS.equals(MecanumDrive.class)) {
             MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
