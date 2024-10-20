@@ -9,6 +9,7 @@ import com.acmerobotics.roadrunner.Vector2d;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -22,15 +23,26 @@ public class opmode_MAIN extends LinearOpMode {
 
     //setup arm variable
     private DcMotorEx arm;
+    private DcMotorEx out;
+    private CRServo servo_CLAW;
+
+    int arm_upper_lim = 10000;
+    double servo_CLAW_power = 0.0;
 
     @Override
     public void runOpMode() throws InterruptedException {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
-        //setup arm to use velicity
+        //setup arm to use velocity
         arm = hardwareMap.get(DcMotorEx.class, "arm");
         arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        out = hardwareMap.get(DcMotorEx.class, "out");
+        out.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        servo_CLAW = hardwareMap.get(CRServo.class, "claw");
 
         if (TuningOpModes.DRIVE_CLASS.equals(MecanumDrive.class)) {
             MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
@@ -50,17 +62,43 @@ public class opmode_MAIN extends LinearOpMode {
                 drive.updatePoseEstimate();
 
                 //arm code
-                if (arm.getCurrentPosition() < 500 && gamepad1.y) {
-                    arm.setVelocity(100); //Can be positive or negative
+                if (arm.getCurrentPosition() < arm_upper_lim && gamepad1.dpad_up) {
+                    arm.setVelocity(200);
                 }
-                else if (arm.getCurrentPosition() > 0 && !gamepad1.y) {
-                    arm.setVelocity(-100);
+                else if (arm.getCurrentPosition() > 0 && gamepad1.dpad_down) {
+                    arm.setVelocity(-200);
+                }
+                else {
+                    arm.setVelocity(0);
                 }
 
-                //telemetry stuff and stuff for ftcDashboard
+                if (out.getCurrentPosition() < 10000 && gamepad1.left_trigger > 0.8f) {
+                    out.setVelocity(-50);
+                }
+                else if (out.getCurrentPosition() > -10000 && gamepad1.left_bumper) {
+                    out.setVelocity(80);
+                }
+                else {
+                    out.setVelocity(0);
+                }
+
+                if (gamepad1.right_bumper) {
+                    servo_CLAW_power += 5;
+                } else if (gamepad1.right_trigger > 0.8) {
+                    servo_CLAW_power += -5;
+                } else {
+                    servo_CLAW_power = 0;
+                }
+
+                servo_CLAW.setPower(servo_CLAW_power);
+
+
+                    //telemetry stuff and stuff for ftcDashboard
                 telemetry.addData("x", drive.pose.position.x);
                 telemetry.addData("y", drive.pose.position.y);
                 telemetry.addData("heading (deg)", Math.toDegrees(drive.pose.heading.toDouble()));
+                telemetry.addData("armCurrentPosition", arm.getCurrentPosition());
+                telemetry.addData("outCurrentPosition", out.getCurrentPosition());
                 telemetry.update();
 
                 TelemetryPacket packet = new TelemetryPacket();
