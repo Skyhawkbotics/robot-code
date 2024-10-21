@@ -12,7 +12,9 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.HardwareDeviceCloseOnTearDown;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.tuning.TuningOpModes;
 
@@ -26,8 +28,13 @@ public class opmode_MAIN extends LinearOpMode {
     private DcMotorEx out;
     private CRServo servo_CLAW;
 
-    int arm_upper_lim = 10000;
+    int arm_upper_lim = 1355;
     double servo_CLAW_power = 0.0;
+    double servo_CLAW_position = 0.0;
+
+    //time stuff
+    double last_time = 0;
+    private ElapsedTime     runtime = new ElapsedTime();
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -50,6 +57,8 @@ public class opmode_MAIN extends LinearOpMode {
             waitForStart();
 
             while (opModeIsActive()) {
+
+
                 //driving code taken from LocalizationTest
                 drive.setDrivePowers(new PoseVelocity2d(
                         new Vector2d(
@@ -63,34 +72,37 @@ public class opmode_MAIN extends LinearOpMode {
 
                 //arm code
                 if (arm.getCurrentPosition() < arm_upper_lim && gamepad1.dpad_up) {
-                    arm.setVelocity(200);
+                    arm.setVelocity(500);
                 }
                 else if (arm.getCurrentPosition() > 0 && gamepad1.dpad_down) {
-                    arm.setVelocity(-200);
+                    arm.setVelocity(-500);
                 }
                 else {
                     arm.setVelocity(0);
                 }
 
-                if (out.getCurrentPosition() < 10000 && gamepad1.left_trigger > 0.8f) {
-                    out.setVelocity(-50);
+                if (out.getCurrentPosition() < 916 && gamepad1.left_trigger > 0.8f) {
+                    out.setVelocity(-80);
                 }
-                else if (out.getCurrentPosition() > -10000 && gamepad1.left_bumper) {
+                else if (out.getCurrentPosition() > 0 && gamepad1.left_bumper) {
                     out.setVelocity(80);
                 }
                 else {
                     out.setVelocity(0);
                 }
 
-                if (gamepad1.right_bumper) {
-                    servo_CLAW_power += 5;
-                } else if (gamepad1.right_trigger > 0.8) {
-                    servo_CLAW_power += -5;
+                if (gamepad1.right_bumper && servo_CLAW_position < 0) {
+                    servo_CLAW_power = 1;
+                    servo_CLAW_position += 1 * (runtime.seconds() - last_time);
+                } else if (gamepad1.right_trigger > 0.8 && servo_CLAW_position > -0.8) {
+                    servo_CLAW_power = -1;
+                    servo_CLAW_position += -1 * (runtime.seconds() - last_time);
                 } else {
                     servo_CLAW_power = 0;
                 }
 
                 servo_CLAW.setPower(servo_CLAW_power);
+
 
 
                     //telemetry stuff and stuff for ftcDashboard
@@ -99,12 +111,16 @@ public class opmode_MAIN extends LinearOpMode {
                 telemetry.addData("heading (deg)", Math.toDegrees(drive.pose.heading.toDouble()));
                 telemetry.addData("armCurrentPosition", arm.getCurrentPosition());
                 telemetry.addData("outCurrentPosition", out.getCurrentPosition());
+                telemetry.addData("clawCurrentPosition", servo_CLAW_position);
                 telemetry.update();
 
                 TelemetryPacket packet = new TelemetryPacket();
                 packet.fieldOverlay().setStroke("#3F51B5");
                 Drawing.drawRobot(packet.fieldOverlay(), drive.pose);
                 FtcDashboard.getInstance().sendTelemetryPacket(packet);
+
+                //increment the last_time
+                last_time = runtime.seconds();
             }
         } else {
             throw new RuntimeException();
