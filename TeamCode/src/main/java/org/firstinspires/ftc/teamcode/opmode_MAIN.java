@@ -81,11 +81,11 @@ public class opmode_MAIN extends LinearOpMode {
                     arm.setVelocity(0);
                 }
 
-                if (out.getCurrentPosition() < 916 && gamepad1.left_trigger > 0.8f) {
-                    out.setVelocity(-80);
+                if (out.getCurrentPosition() > 0 && gamepad1.left_trigger > 0.8f) {
+                    out.setVelocity(-150);
                 }
-                else if (out.getCurrentPosition() > 0 && gamepad1.left_bumper) {
-                    out.setVelocity(80);
+                else if (out.getCurrentPosition() < 2000 && gamepad1.left_bumper) {
+                    out.setVelocity(150);
                 }
                 else {
                     out.setVelocity(0);
