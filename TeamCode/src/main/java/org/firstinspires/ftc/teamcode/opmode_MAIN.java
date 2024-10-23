@@ -91,7 +91,7 @@ public class opmode_MAIN extends LinearOpMode {
                     out.setVelocity(0);
                 }
 
-                if (gamepad1.right_bumper && servo_CLAW_position < 1000000000) { //TODO: find a better solution for this limits so we can actually iuse them
+                if (gamepad1.right_bumper && servo_CLAW_position < 1000000000) { //TODO: find a better solution for this limits so we can actually use them
                     servo_CLAW_power = 1;
                     servo_CLAW_position += 1 * (runtime.seconds() - last_time);
                 } else if (gamepad1.right_trigger > 0.8 && servo_CLAW_position > -100000000) { //TODO: these limits too.
