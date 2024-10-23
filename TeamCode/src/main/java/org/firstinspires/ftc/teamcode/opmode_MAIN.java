@@ -72,29 +72,29 @@ public class opmode_MAIN extends LinearOpMode {
 
                 //arm code
                 if (arm.getCurrentPosition() < arm_upper_lim && gamepad1.dpad_up) {
-                    arm.setVelocity(500);
+                    arm.setVelocity(1000);
                 }
                 else if (arm.getCurrentPosition() > 0 && gamepad1.dpad_down) {
-                    arm.setVelocity(-500);
+                    arm.setVelocity(-1000);
                 }
                 else {
                     arm.setVelocity(0);
                 }
 
                 if (out.getCurrentPosition() > 0 && gamepad1.left_trigger > 0.8f) {
-                    out.setVelocity(-150);
+                    out.setVelocity(-500);
                 }
                 else if (out.getCurrentPosition() < 2000 && gamepad1.left_bumper) {
-                    out.setVelocity(150);
+                    out.setVelocity(500);
                 }
                 else {
                     out.setVelocity(0);
                 }
 
-                if (gamepad1.right_bumper && servo_CLAW_position < 0) {
+                if (gamepad1.right_bumper && servo_CLAW_position < 1000000000) { //TODO: find a better solution for this limits so we can actually iuse them
                     servo_CLAW_power = 1;
                     servo_CLAW_position += 1 * (runtime.seconds() - last_time);
-                } else if (gamepad1.right_trigger > 0.8 && servo_CLAW_position > -0.8) {
+                } else if (gamepad1.right_trigger > 0.8 && servo_CLAW_position > -100000000) { //TODO: these limits too.
                     servo_CLAW_power = -1;
                     servo_CLAW_position += -1 * (runtime.seconds() - last_time);
                 } else {
