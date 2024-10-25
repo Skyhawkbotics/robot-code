@@ -6,22 +6,19 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
-
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.HardwareDeviceCloseOnTearDown;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.tuning.TuningOpModes;
 
 
 //built from LocalizationTest, but adding the arm stuff
-@TeleOp(name="MAIN_opmode")
-public class opmode_MAIN extends LinearOpMode {
+@TeleOp(name="opmodeVeryManual")
+public class opmodevVeryManual extends LinearOpMode {
 
     //setup arm variable
     private DcMotorEx arm;
@@ -40,15 +37,13 @@ public class opmode_MAIN extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
-        //setup arm to use velocity
         arm = hardwareMap.get(DcMotorEx.class, "arm");
         arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         out = hardwareMap.get(DcMotorEx.class, "out");
         out.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        out.setTargetPosition(0);
-        out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         servo_CLAW = hardwareMap.get(CRServo.class, "claw");
 
@@ -82,13 +77,21 @@ public class opmode_MAIN extends LinearOpMode {
                     arm.setVelocity(0);
                 }
 
-                out.setVelocity(500);
-                out.setTargetPosition(((int) (arm.getCurrentPosition() * -0.6)));
+                if (out.getCurrentPosition() > -20000 && gamepad1.left_trigger > 0.8f) {
+                    out.setVelocity(-500);
+                }
+                else if (out.getCurrentPosition() < 20000 && gamepad1.left_bumper) {
+                    out.setVelocity(500);
+                }
+                else {
+                    out.setVelocity(0);
+                }
 
-                if (gamepad1.right_bumper && servo_CLAW_position < 1000000000) { //TODO: find a better solution for this limits so we can actually use them
+
+                if (gamepad1.right_bumper) { //TODO: find a better solution for this limits so we can actually use them
                     servo_CLAW_power = 1;
                     servo_CLAW_position += 1 * (runtime.seconds() - last_time);
-                } else if (gamepad1.right_trigger > 0.8 && servo_CLAW_position > -100000000) { //TODO: these limits too.
+                } else if (gamepad1.right_trigger > 0.8f) { //TODO: these limits too.
                     servo_CLAW_power = -1;
                     servo_CLAW_position += -1 * (runtime.seconds() - last_time);
                 } else {
