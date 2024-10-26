@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareDeviceCloseOnTearDown;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -28,7 +29,7 @@ public class opmode_MAIN extends LinearOpMode {
     private DcMotorEx out;
     private CRServo servo_CLAW;
 
-    int arm_upper_lim = 1355;
+    int arm_upper_lim = 1150;
     double servo_CLAW_power = 0.0;
     double servo_CLAW_position = 0.0;
 
@@ -44,6 +45,7 @@ public class opmode_MAIN extends LinearOpMode {
         arm = hardwareMap.get(DcMotorEx.class, "arm");
         arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        arm.setDirection(DcMotorSimple.Direction.REVERSE);
 
         out = hardwareMap.get(DcMotorEx.class, "out");
         out.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -80,6 +82,13 @@ public class opmode_MAIN extends LinearOpMode {
                 }
                 else {
                     arm.setVelocity(0);
+                }
+
+                //make sure the upper and lower limits are actually at the upper and lower limits
+                if (arm.getCurrentPosition() < 0) {
+                    arm.setTargetPosition(0);
+                } else if (arm.getCurrentPosition() > arm_upper_lim) {
+                    arm.setTargetPosition(arm_upper_lim);
                 }
 
                 out.setVelocity(500);

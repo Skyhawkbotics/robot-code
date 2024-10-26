@@ -25,7 +25,7 @@ public class opmodevVeryManual extends LinearOpMode {
     private DcMotorEx out;
     private CRServo servo_CLAW;
 
-    int arm_upper_lim = 1355;
+    int arm_upper_lim = 1000000;
     double servo_CLAW_power = 0.0;
     double servo_CLAW_position = 0.0;
 
@@ -70,13 +70,14 @@ public class opmodevVeryManual extends LinearOpMode {
                 if (arm.getCurrentPosition() < arm_upper_lim && gamepad1.dpad_up) {
                     arm.setVelocity(1000);
                 }
-                else if (arm.getCurrentPosition() > 0 && gamepad1.dpad_down) {
+                else if (arm.getCurrentPosition() > -1000000000 && gamepad1.dpad_down) {
                     arm.setVelocity(-1000);
                 }
                 else {
                     arm.setVelocity(0);
                 }
 
+                //for out
                 if (out.getCurrentPosition() > -20000 && gamepad1.left_trigger > 0.8f) {
                     out.setVelocity(-500);
                 }
@@ -88,6 +89,7 @@ public class opmodevVeryManual extends LinearOpMode {
                 }
 
 
+                //for claw
                 if (gamepad1.right_bumper) { //TODO: find a better solution for this limits so we can actually use them
                     servo_CLAW_power = 1;
                     servo_CLAW_position += 1 * (runtime.seconds() - last_time);
