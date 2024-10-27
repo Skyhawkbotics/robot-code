@@ -8,8 +8,11 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
+import com.acmerobotics.roadrunner.Trajectory;
 import com.acmerobotics.roadrunner.Vector2d;
+import com.acmerobotics.roadrunner.TrajectoryBuilder;
 
+import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -17,6 +20,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.acmerobotics.roadrunner.*;
 
 @Autonomous(name = "autonomous_MAIN")
 public class autonomous_MAIN extends LinearOpMode {
@@ -33,6 +37,7 @@ public class autonomous_MAIN extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+
 
         //initalize arm
         arm = hardwareMap.get(DcMotorEx.class, "arm");
@@ -56,18 +61,20 @@ public class autonomous_MAIN extends LinearOpMode {
         out.setVelocity(200);
         out.setTargetPosition(-1088);
 
+        Trajectory leftCorner = TrajectoryBuilder(new Pose2d(0.0, 0.0, 0.0))
+                .strafeRight(10)
+                .foward(5)
+                .build();
+
+
+        waitForStart();
         //main loop
         while(opModeIsActive()) {
 
-            //close claw
-            if (servo_CLAW_position < 0.8) {
-                servo_CLAW_power = 1;
-                servo_CLAW_position += 1 * (runtime.seconds() - last_time);
-            } else {
-                servo_CLAW_power = 0;
-            }
-            //actually set the power
-            servo_CLAW.setPower(servo_CLAW_power);
+            Actions.runBlocking(new SequentialAction(
+
+            ));
+
         }
     }
 }
