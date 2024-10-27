@@ -33,6 +33,8 @@ public class opmode_MAIN extends LinearOpMode {
     double servo_CLAW_power = 0.0;
     double servo_CLAW_position = 0.0;
 
+    double manualOutControl = 0;
+
     //time stuff
     double last_time = 0;
     private ElapsedTime     runtime = new ElapsedTime();
@@ -74,10 +76,10 @@ public class opmode_MAIN extends LinearOpMode {
                 drive.updatePoseEstimate();
 
                 //arm code
-                if (arm.getCurrentPosition() < arm_upper_lim && gamepad1.dpad_up) {
+                if (arm.getCurrentPosition() < arm_upper_lim && gamepad2.dpad_up) {
                     arm.setVelocity(1000);
                 }
-                else if (arm.getCurrentPosition() > 0 && gamepad1.dpad_down) {
+                else if (arm.getCurrentPosition() > 0 && gamepad2.dpad_down) {
                     arm.setVelocity(-1000);
                 }
                 else {
@@ -91,13 +93,27 @@ public class opmode_MAIN extends LinearOpMode {
                     arm.setTargetPosition(arm_upper_lim);
                 }
 
-                out.setVelocity(500);
-                out.setTargetPosition(((int) (arm.getCurrentPosition() * -0.6)));
+                if (gamepad2.left_bumper) {
+                    manualOutControl += 1000 * (runtime.seconds() - last_time);
+                } else if ((gamepad2.left_trigger > 0.8f)) {
+                    manualOutControl += -1000 * (runtime.seconds() - last_time);
+                }
 
-                if (gamepad1.right_bumper && servo_CLAW_position < 1000000000) { //TODO: find a better solution for this limits so we can actually use them
+                if (gamepad2.a) {
+                    manualOutControl = 0;
+                }
+
+                out.setVelocity(500);
+                // Keep the current expression of arm*2
+                // add onto the expression: + myVariable
+                // Increment myVariable so u have manual control
+                // To "return" back to normal business set it to 0
+                out.setTargetPosition(((int) ((arm.getCurrentPosition() * -0.6) + manualOutControl)));
+
+                if (gamepad2.right_trigger > 0.8 && servo_CLAW_position < 1000000000) { //TODO: find a better solution for this limits so we can actually use them
                     servo_CLAW_power = 1;
                     servo_CLAW_position += 1 * (runtime.seconds() - last_time);
-                } else if (gamepad1.right_trigger > 0.8 && servo_CLAW_position > -100000000) { //TODO: these limits too.
+                } else if (gamepad2.right_bumper && servo_CLAW_position > -100000000) { //TODO: these limits too.
                     servo_CLAW_power = -1;
                     servo_CLAW_position += -1 * (runtime.seconds() - last_time);
                 } else {
@@ -115,6 +131,7 @@ public class opmode_MAIN extends LinearOpMode {
                 telemetry.addData("armCurrentPosition", arm.getCurrentPosition());
                 telemetry.addData("outCurrentPosition", out.getCurrentPosition());
                 telemetry.addData("clawCurrentPosition", servo_CLAW_position);
+                telemetry.addData("manualOutControl", manualOutControl);
                 telemetry.update();
 
                 TelemetryPacket packet = new TelemetryPacket();
