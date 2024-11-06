@@ -64,7 +64,7 @@ public class autonomous_MAIN extends LinearOpMode {
         TrajectoryActionBuilder leftCorner = drive.actionBuilder(new Pose2d(0.0, 0.0, 0.0));
 
         leftCorner.strafeTo(new Vector2d(0.0, 1.0));
-        leftCorner.lineToY(1.0);
+        leftCorner.lineToX(1.0);
         leftCorner.build();
 
 
