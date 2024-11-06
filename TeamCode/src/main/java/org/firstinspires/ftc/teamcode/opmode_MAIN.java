@@ -25,11 +25,10 @@ import org.firstinspires.ftc.teamcode.tuning.TuningOpModes;
 public class opmode_MAIN extends LinearOpMode {
 
     //setup arm variable
-    private DcMotorEx arm;
-    private DcMotorEx out;
+    private DcMotorEx up;
     private CRServo servo_CLAW;
 
-    int arm_upper_lim = 1150;
+    int arm_upper_lim = 2000;
     double servo_CLAW_power = 0.0;
     double servo_CLAW_position = 0.0;
 
@@ -44,15 +43,16 @@ public class opmode_MAIN extends LinearOpMode {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         //setup arm to use velocity
-        arm = hardwareMap.get(DcMotorEx.class, "arm");
-        arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        arm.setDirection(DcMotorSimple.Direction.REVERSE);
+            up = hardwareMap.get(DcMotorEx.class, "up");
+            up.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            up.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        out = hardwareMap.get(DcMotorEx.class, "out");
-        out.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        out.setTargetPosition(0);
-        out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            //example position setup
+            //out = hardwareMap.get(DcMotorEx.class, "out");
+            //out.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            //out.setTargetPosition(0);
+            //out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         servo_CLAW = hardwareMap.get(CRServo.class, "claw");
 
@@ -76,23 +76,23 @@ public class opmode_MAIN extends LinearOpMode {
                 drive.updatePoseEstimate();
 
                 //arm code
-                if (arm.getCurrentPosition() < arm_upper_lim && gamepad2.dpad_up) {
-                    arm.setVelocity(1000);
+                if (/*up.getCurrentPosition() < arm_upper_lim && */gamepad2.dpad_up) {
+                    up.setVelocity(2796);
                 }
-                else if (arm.getCurrentPosition() > 0 && gamepad2.dpad_down) {
-                    arm.setVelocity(-1000);
+                else if (/*up.getCurrentPosition() > -100000000000 && */gamepad2.dpad_down) {
+                    up.setVelocity(-2796);
                 }
                 else {
-                    arm.setVelocity(0);
+                    up.setVelocity(0);
                 }
 
                 //make sure the upper and lower limits are actually at the upper and lower limits
-                if (arm.getCurrentPosition() < 0) {
-                    arm.setTargetPosition(0);
-                } else if (arm.getCurrentPosition() > arm_upper_lim) {
-                    arm.setTargetPosition(arm_upper_lim);
+                if (up.getCurrentPosition() < 0) {
+                    up.setTargetPosition(0);
+                } else if (up.getCurrentPosition() > arm_upper_lim) {
+                    up.setTargetPosition(arm_upper_lim);
                 }
-
+/*
                 if (gamepad2.left_bumper) {
                     manualOutControl += 1000 * (runtime.seconds() - last_time);
                 } else if ((gamepad2.left_trigger > 0.8f)) {
@@ -101,14 +101,14 @@ public class opmode_MAIN extends LinearOpMode {
 
                 if (gamepad2.a) {
                     manualOutControl = 0;
-                }
+                }*/
 
-                out.setVelocity(500);
+                //out.setVelocity(500);
                 // Keep the current expression of arm*2
                 // add onto the expression: + myVariable
                 // Increment myVariable so u have manual control
                 // To "return" back to normal business set it to 0
-                out.setTargetPosition(((int) ((arm.getCurrentPosition() * -0.6) + manualOutControl)));
+                //out.setTargetPosition(((int) ((arm.getCurrentPosition() * -0.6) + manualOutControl)));
 
                 if (gamepad2.right_trigger > 0.8 && servo_CLAW_position < 1000000000) { //TODO: find a better solution for this limits so we can actually use them
                     servo_CLAW_power = 1;
@@ -128,8 +128,8 @@ public class opmode_MAIN extends LinearOpMode {
                 telemetry.addData("x", drive.pose.position.x);
                 telemetry.addData("y", drive.pose.position.y);
                 telemetry.addData("heading (deg)", Math.toDegrees(drive.pose.heading.toDouble()));
-                telemetry.addData("armCurrentPosition", arm.getCurrentPosition());
-                telemetry.addData("outCurrentPosition", out.getCurrentPosition());
+                telemetry.addData("armCurrentPosition", up.getCurrentPosition());
+                //telemetry.addData("outCurrentPosition", out.getCurrentPosition());
                 telemetry.addData("clawCurrentPosition", servo_CLAW_position);
                 telemetry.addData("manualOutControl", manualOutControl);
                 telemetry.update();

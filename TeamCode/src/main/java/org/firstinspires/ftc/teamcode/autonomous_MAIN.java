@@ -25,7 +25,7 @@ import com.acmerobotics.roadrunner.*;
 @Autonomous(name = "autonomous_MAIN")
 public class autonomous_MAIN extends LinearOpMode {
 
-    private DcMotorEx arm;
+    private DcMotorEx up;
     private DcMotorEx out;
     private CRServo servo_CLAW;
 
@@ -38,19 +38,19 @@ public class autonomous_MAIN extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-
+        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0.0,0.0,0.0));
         //initalize arm
-        arm = hardwareMap.get(DcMotorEx.class, "arm");
-        arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        arm.setTargetPosition(0);
-        arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        arm.setDirection(DcMotorSimple.Direction.REVERSE);
+        up = hardwareMap.get(DcMotorEx.class, "up");
+        up.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        up.setTargetPosition(0);
+        up.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        up.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //initalize out
-        out = hardwareMap.get(DcMotorEx.class, "out");
-        out.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        out.setTargetPosition(0);
-        out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        //out = hardwareMap.get(DcMotorEx.class, "out");
+        //out.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //out.setTargetPosition(0);
+        //out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         //initialize claw servo
         servo_CLAW = hardwareMap.get(CRServo.class, "claw");
@@ -58,23 +58,29 @@ public class autonomous_MAIN extends LinearOpMode {
         waitForStart();
 
         //put the out motor out
-        out.setVelocity(200);
-        out.setTargetPosition(-1088);
+        //out.setVelocity(200);
+        //out.setTargetPosition(-1088);
 
-        Trajectory leftCorner = TrajectoryBuilder(new Pose2d(0.0, 0.0, 0.0))
-                .strafeRight(10)
-                .foward(5)
-                .build();
+        TrajectoryActionBuilder leftCorner = drive.actionBuilder(new Pose2d(0.0, 0.0, 0.0));
+
+        leftCorner.strafeTo(new Vector2d(0.0, 1.0));
+        leftCorner.lineToY(1.0);
+        leftCorner.build();
+
 
 
         waitForStart();
         //main loop
-        while(opModeIsActive()) {
+        while(!opModeIsActive()) {
 
-            Actions.runBlocking(new SequentialAction(
-
-            ));
 
         }
+        Action leftCornerBuild;
+        leftCornerBuild = leftCorner.build();
+        Actions.runBlocking(
+                new SequentialAction(
+                        leftCornerBuild
+                )
+        );
     }
 }
