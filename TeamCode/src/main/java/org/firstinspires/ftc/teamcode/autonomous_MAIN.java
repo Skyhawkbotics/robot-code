@@ -61,10 +61,13 @@ public class autonomous_MAIN extends LinearOpMode {
         //out.setVelocity(200);
         //out.setTargetPosition(-1088);
 
-        TrajectoryActionBuilder leftCorner = drive.actionBuilder(new Pose2d(0.0, 0.0, 0.0));
+        //build the  trajectory leftCorner
+        TrajectoryActionBuilder leftCorner = drive.actionBuilder(/*start position*/new Pose2d(0.0, 0.0, 0.0));
 
+        //directions from start postion
         leftCorner.strafeTo(new Vector2d(0.0, 1.0));
         leftCorner.lineToX(1.0);
+        //build makes it no longer editable
         leftCorner.build();
 
 
@@ -75,6 +78,7 @@ public class autonomous_MAIN extends LinearOpMode {
 
 
         }
+        //run the action leftCorner
         Action leftCornerBuild;
         leftCornerBuild = leftCorner.build();
         Actions.runBlocking(
