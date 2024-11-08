@@ -32,7 +32,7 @@ public class opmode_MAIN extends LinearOpMode {
     double servo_CLAW_power = 0.0;
     double servo_CLAW_position = 0.0;
     double manualOutControl = 0;
-    int up_true_target_pos
+    int up_true_target_pos;
 
     //time stuff
     double last_time = 0;
