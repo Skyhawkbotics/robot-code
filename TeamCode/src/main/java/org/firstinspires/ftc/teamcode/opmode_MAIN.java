@@ -31,7 +31,6 @@ public class opmode_MAIN extends LinearOpMode {
     int arm_upper_lim = 2000;
     double servo_CLAW_power = 0.0;
     double servo_CLAW_position = 0.0;
-
     double manualOutControl = 0;
 
     //time stuff
@@ -42,10 +41,10 @@ public class opmode_MAIN extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
-        //setup arm to use velocity
+            //setup arm to use velocity
             up = hardwareMap.get(DcMotorEx.class, "up");
             up.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            up.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             up.setDirection(DcMotorSimple.Direction.REVERSE);
 
             //example position setup
@@ -53,6 +52,12 @@ public class opmode_MAIN extends LinearOpMode {
             //out.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             //out.setTargetPosition(0);
             //out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        //example velocity setup
+        up = hardwareMap.get(DcMotorEx.class, "up");
+        up.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        up.setDirection(DcMotorSimple.Direction.REVERSE);
 
         servo_CLAW = hardwareMap.get(CRServo.class, "claw");
 
@@ -77,13 +82,16 @@ public class opmode_MAIN extends LinearOpMode {
 
                 //arm code
                 if (/*up.getCurrentPosition() < arm_upper_lim && */gamepad2.dpad_up) {
+                    up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                     up.setVelocity(2796);
                 }
                 else if (/*up.getCurrentPosition() > -100000000000 && */gamepad2.dpad_down) {
+                    up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                     up.setVelocity(-2796);
-                }
-                else {
-                    up.setVelocity(0);
+                } else {
+                    up.setPower(500);
+                    up.setTargetPosition(up.getCurrentPosition());
+                    up.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 }
 
                 //make sure the upper and lower limits are actually at the upper and lower limits
@@ -93,12 +101,14 @@ public class opmode_MAIN extends LinearOpMode {
                     up.setTargetPosition(arm_upper_lim);
                 }
 /*
+                //manual out control
                 if (gamepad2.left_bumper) {
                     manualOutControl += 1000 * (runtime.seconds() - last_time);
                 } else if ((gamepad2.left_trigger > 0.8f)) {
                     manualOutControl += -1000 * (runtime.seconds() - last_time);
                 }
 
+                /reset manual out control
                 if (gamepad2.a) {
                     manualOutControl = 0;
                 }*/
@@ -124,7 +134,7 @@ public class opmode_MAIN extends LinearOpMode {
 
 
 
-                    //telemetry stuff and stuff for ftcDashboard
+                    //telemetry stuff
                 telemetry.addData("x", drive.pose.position.x);
                 telemetry.addData("y", drive.pose.position.y);
                 telemetry.addData("heading (deg)", Math.toDegrees(drive.pose.heading.toDouble()));
@@ -134,6 +144,7 @@ public class opmode_MAIN extends LinearOpMode {
                 telemetry.addData("manualOutControl", manualOutControl);
                 telemetry.update();
 
+                //idk what this does, something for ftc dashboard i think
                 TelemetryPacket packet = new TelemetryPacket();
                 packet.fieldOverlay().setStroke("#3F51B5");
                 Drawing.drawRobot(packet.fieldOverlay(), drive.pose);

@@ -22,6 +22,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.acmerobotics.roadrunner.*;
 
+import java.lang.Math;
+
 @Autonomous(name = "autonomous_MAIN")
 public class autonomous_MAIN extends LinearOpMode {
 
@@ -62,23 +64,25 @@ public class autonomous_MAIN extends LinearOpMode {
         //out.setTargetPosition(-1088);
 
         //build the  trajectory leftCorner
-        TrajectoryActionBuilder leftCorner = drive.actionBuilder(/*start position*/new Pose2d(0.0, 0.0, 0.0));
+        TrajectoryActionBuilder leftCorner = drive.actionBuilder(/*start position*/new Pose2d(0.0, 5.0, 0.0))
 
         //directions from start postion
-        leftCorner.strafeTo(new Vector2d(0.0, 1.0));
-        leftCorner.lineToX(1.0);
-        //build makes it no longer editable
-        leftCorner.build();
+            .strafeTo(new Vector2d(0.0, 10.0)) // went to the left 10 units(inches?)
+            .waitSeconds(3.0)
+            //.lineToX(10.0) //foward 10 units, seems useless as it kind of gets crooked, and not the right angle
+            .strafeTo(new Vector2d(10, 15))
+            //.turn(2) //turns way further than 2 radians, who knows why.
+                .setTangent(Math.toRadians(180));
 
 
-
-        waitForStart();
         //main loop
-        while(!opModeIsActive()) {
+        while(!opModeIsActive() && !isStopRequested()) {
 
 
         }
-        //run the action leftCorner
+        waitForStart();
+        if (isStopRequested()) return;
+        //run the action leftCorner, first building it to make it runnable as a action, as a result we can no longer edit this action!
         Action leftCornerBuild;
         leftCornerBuild = leftCorner.build();
         Actions.runBlocking(
