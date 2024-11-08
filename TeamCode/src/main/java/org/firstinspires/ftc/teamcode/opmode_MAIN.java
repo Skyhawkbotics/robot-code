@@ -32,6 +32,7 @@ public class opmode_MAIN extends LinearOpMode {
     double servo_CLAW_power = 0.0;
     double servo_CLAW_position = 0.0;
     double manualOutControl = 0;
+    int up_true_target_pos
 
     //time stuff
     double last_time = 0;
@@ -54,10 +55,10 @@ public class opmode_MAIN extends LinearOpMode {
             //out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         //example velocity setup
-        up = hardwareMap.get(DcMotorEx.class, "up");
-        up.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        up.setDirection(DcMotorSimple.Direction.REVERSE);
+        //up = hardwareMap.get(DcMotorEx.class, "up");
+        //up.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //up.setDirection(DcMotorSimple.Direction.REVERSE);
 
         servo_CLAW = hardwareMap.get(CRServo.class, "claw");
 
@@ -84,13 +85,18 @@ public class opmode_MAIN extends LinearOpMode {
                 if (/*up.getCurrentPosition() < arm_upper_lim && */gamepad2.dpad_up) {
                     up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                     up.setVelocity(2796);
+                    up_true_target_pos = 0;
                 }
                 else if (/*up.getCurrentPosition() > -100000000000 && */gamepad2.dpad_down) {
                     up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                     up.setVelocity(-2796);
+                    up_true_target_pos = 0;
                 } else {
                     up.setPower(500);
-                    up.setTargetPosition(up.getCurrentPosition());
+                    if (up.getCurrentPosition() > up_true_target_pos) {
+                        up.setTargetPosition(up.getCurrentPosition());
+                        up_true_target_pos = up.getCurrentPosition();
+                    }
                     up.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 }
 
