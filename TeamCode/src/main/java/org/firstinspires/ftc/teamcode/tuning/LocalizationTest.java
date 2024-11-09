@@ -47,7 +47,7 @@ public class LocalizationTest extends LinearOpMode {
             TankDrive drive = new TankDrive(hardwareMap, new Pose2d(0, 0, 0));
 
             waitForStart();
-
+// The driving controls I think, giving vectors to the two left stick and right stick
             while (opModeIsActive()) {
                 drive.setDrivePowers(new PoseVelocity2d(
                         new Vector2d(
