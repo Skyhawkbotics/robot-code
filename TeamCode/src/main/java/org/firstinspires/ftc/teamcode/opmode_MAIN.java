@@ -28,7 +28,7 @@ public class opmode_MAIN extends LinearOpMode {
     private DcMotorEx up;
     private CRServo servo_CLAW;
 
-    int arm_upper_lim = 2000;
+    int arm_upper_lim = 6000;
     double servo_CLAW_power = 0.0;
     double servo_CLAW_position = 0.0;
     double manualOutControl = 0;
@@ -82,20 +82,20 @@ public class opmode_MAIN extends LinearOpMode {
                 drive.updatePoseEstimate();
 
                 //arm code
-                if (/*up.getCurrentPosition() < arm_upper_lim && */gamepad2.dpad_up) {
+                if (up.getCurrentPosition() < arm_upper_lim && gamepad2.dpad_up) {
                     //use velocity mode to move so it doesn't we all funky with the smoothing of position mode
                     up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                     up.setVelocity(2796);
                     up_true_target_pos = 0;
                 }
-                else if (/*up.getCurrentPosition() > -100000000000 && */gamepad2.dpad_down) {
+                else if ( up.getCurrentPosition() > 0 && gamepad2.dpad_down) {
                     up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                     up.setVelocity(-2796);
                     up_true_target_pos = 0;
                 } else {
                     up.setPower(500);
                     //use positon mode to stay up, as otherwise it would fall down. do some fancy stuff with up_true_target_pos to avoid the issue of it very slightly falling every tick
-                    if (up.getCurrentPosition() > up_true_target_pos) {
+                    if (up_true_target_pos == 0) {
                         up.setTargetPosition(up.getCurrentPosition());
                         up_true_target_pos = up.getCurrentPosition();
                     }
