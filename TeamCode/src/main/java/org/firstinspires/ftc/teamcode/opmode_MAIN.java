@@ -54,11 +54,11 @@ public class opmode_MAIN extends LinearOpMode {
             //out.setTargetPosition(0);
             //out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        //example velocity setup
-        //up = hardwareMap.get(DcMotorEx.class, "up");
-        //up.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        //up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //up.setDirection(DcMotorSimple.Direction.REVERSE);
+            //example velocity setup
+            //up = hardwareMap.get(DcMotorEx.class, "up");
+            //up.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            //up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            //up.setDirection(DcMotorSimple.Direction.REVERSE);
 
         servo_CLAW = hardwareMap.get(CRServo.class, "claw");
 
@@ -83,6 +83,7 @@ public class opmode_MAIN extends LinearOpMode {
 
                 //arm code
                 if (/*up.getCurrentPosition() < arm_upper_lim && */gamepad2.dpad_up) {
+                    //use velocity mode to move so it doesn't we all funky with the smoothing of position mode
                     up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                     up.setVelocity(2796);
                     up_true_target_pos = 0;
@@ -93,6 +94,7 @@ public class opmode_MAIN extends LinearOpMode {
                     up_true_target_pos = 0;
                 } else {
                     up.setPower(500);
+                    //use positon mode to stay up, as otherwise it would fall down. do some fancy stuff with up_true_target_pos to avoid the issue of it very slightly falling every tick
                     if (up.getCurrentPosition() > up_true_target_pos) {
                         up.setTargetPosition(up.getCurrentPosition());
                         up_true_target_pos = up.getCurrentPosition();
@@ -126,10 +128,10 @@ public class opmode_MAIN extends LinearOpMode {
                 // To "return" back to normal business set it to 0
                 //out.setTargetPosition(((int) ((arm.getCurrentPosition() * -0.6) + manualOutControl)));
 
-                if (gamepad2.right_trigger > 0.8 && servo_CLAW_position < 1000000000) { //TODO: find a better solution for this limits so we can actually use them
+                if (gamepad2.right_trigger > 0.8/* && servo_CLAW_position < 1000000000*/) { //TODO: find a better solution for this limits so we can actually use them
                     servo_CLAW_power = 1;
                     servo_CLAW_position += 1 * (runtime.seconds() - last_time);
-                } else if (gamepad2.right_bumper && servo_CLAW_position > -100000000) { //TODO: these limits too.
+                } else if (gamepad2.right_bumper/* && servo_CLAW_position > -100000000*/) { //TODO: these limits too.
                     servo_CLAW_power = -1;
                     servo_CLAW_position += -1 * (runtime.seconds() - last_time);
                 } else {
@@ -148,6 +150,8 @@ public class opmode_MAIN extends LinearOpMode {
                 //telemetry.addData("outCurrentPosition", out.getCurrentPosition());
                 telemetry.addData("clawCurrentPosition", servo_CLAW_position);
                 telemetry.addData("manualOutControl", manualOutControl);
+                telemetry.addData("up_true_target_pos", up_true_target_pos);
+                telemetry.addData("up_current_pos", up.getCurrentPosition());
                 telemetry.update();
 
                 //idk what this does, something for ftc dashboard i think
