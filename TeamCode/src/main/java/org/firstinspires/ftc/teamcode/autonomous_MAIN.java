@@ -19,6 +19,7 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.acmerobotics.roadrunner.*;
 
@@ -27,11 +28,12 @@ import java.lang.Math;
 @Autonomous(name = "autonomous_MAIN")
 public class autonomous_MAIN extends LinearOpMode {
 
-    private DcMotorEx up//name of motor is up(in the code);
+    private DcMotorEx up; //name of motor is up(in the code);
     private DcMotorEx out;
     // DcMotorEx is any dc motor that uses the regular motor ports (on left side of control and expantion hub)
     private CRServo servo_CLAW;
 // CRServo means its continuous rotation servo
+    private TouchSensor up_zero;
     double servo_CLAW_power = 0.0;
     double servo_CLAW_position = 0.0;
 
@@ -45,8 +47,7 @@ public class autonomous_MAIN extends LinearOpMode {
         //initalize up using position mode basically just copied from somewhere
         up = hardwareMap.get(DcMotorEx.class, "up"/*this is the name of the motor on the acutal robot (changed through driver hub)*/);
         up.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        up.setTargetPosition(0);
-        up.setMode(DcMotor.RunMode.RUN_TO_POSITION); // what does this do
+        up.setMode(DcMotor.RunMode.RUN_USING_ENCODER); //using velocity mode!
         up.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //initalize out
@@ -57,6 +58,9 @@ public class autonomous_MAIN extends LinearOpMode {
 
         //initialize claw servo
         servo_CLAW = hardwareMap.get(CRServo.class, "claw");
+
+        //initialize touch sensor
+        up_zero = hardwareMap.get(TouchSensor.class, "up_zero");
 
         waitForStart(); // it might wait for start
 
@@ -91,5 +95,12 @@ public class autonomous_MAIN extends LinearOpMode {
                         leftCornerBuild
                 )
         );
+
+        //zeros out up using the sensor, (goes down until button is pressed)
+        if (!up_zero.isPressed()) {
+            up.setVelocity(-500);
+        } else {
+            up.setVelocity(0);
+        }
     }
 }
