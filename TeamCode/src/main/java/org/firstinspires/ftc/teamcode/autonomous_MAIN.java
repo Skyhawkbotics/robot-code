@@ -27,7 +27,7 @@ import java.lang.Math;
 @Autonomous(name = "autonomous_MAIN")
 public class autonomous_MAIN extends LinearOpMode {
 
-    private DcMotorEx up//name of motor is up(in the code);
+    private DcMotorEx up;//name of motor is up(in the code);
     private DcMotorEx out;
     // DcMotorEx is any dc motor that uses the regular motor ports (on left side of control and expantion hub)
     private CRServo servo_CLAW;
