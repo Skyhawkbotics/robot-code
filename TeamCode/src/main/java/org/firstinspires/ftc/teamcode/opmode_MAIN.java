@@ -127,7 +127,8 @@ public class opmode_MAIN extends LinearOpMode {
                 // Increment myVariable so u have manual control
                 // To "return" back to normal business set it to 0
                 //out.setTargetPosition(((int) ((arm.getCurrentPosition() * -0.6) + manualOutControl)));
-                // Gamepad2.right_trigger limits
+
+                // Gamepad2.right_trigger is analog, so we need a compatative statment to use it as a digital button.
                 if (gamepad2.right_trigger > 0.8/* && servo_CLAW_position < 1000000000*/) { //TODO: find a better solution for this limits so we can actually use them
                     servo_CLAW_power = 1;
                     servo_CLAW_position += 1 * (runtime.seconds() - last_time);
@@ -142,7 +143,7 @@ public class opmode_MAIN extends LinearOpMode {
 
 
 
-                    //telemetry stuff (prints stuff on the telemetry (ipad))
+                //telemetry stuff (prints stuff on the telemetry (driver hub))
                 telemetry.addData("x", drive.pose.position.x);
                 telemetry.addData("y", drive.pose.position.y);
                 telemetry.addData("heading (deg)", Math.toDegrees(drive.pose.heading.toDouble()));
