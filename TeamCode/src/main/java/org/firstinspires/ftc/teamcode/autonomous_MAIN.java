@@ -80,6 +80,8 @@ public class autonomous_MAIN extends LinearOpMode {
                 .setTangent(Math.toRadians(180));
 
 
+
+
         //main loop
         while(!opModeIsActive() && !isStopRequested()) {
 
@@ -91,7 +93,7 @@ public class autonomous_MAIN extends LinearOpMode {
         Action leftCornerBuild;
         leftCornerBuild = leftCorner.build();
         Actions.runBlocking(
-                new SequentialAction(
+                new ParallelAction(
                         leftCornerBuild
                 )
         );
@@ -102,5 +104,38 @@ public class autonomous_MAIN extends LinearOpMode {
         } else {
             up.setVelocity(0);
         }
+    }
+}
+
+public class Elevator {
+    private TouchSensor up_zero;
+    private DcMotorEx up;
+
+    public Elevator(HardwareMap hardwareMap) {
+        up_zero = hardwareMap.get(TouchSensor.class, "up_zero");
+        up = hardwareMap.get(DcMotorEx.class, "up");
+    }
+
+    public class CalibrateDown implements Action {
+        private boolean initialized = false;
+
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            if (!initialized) {
+                up.setVelocity(-500);
+                initialized = true;
+            }
+            packet.put("Button is pressed", String.valueOf(up_zero.isPressed()));
+            if (!up_zero.isPressed()) {
+                return true;
+            } else {
+                up.setVelocity(0);
+                return false;
+            }
+        }
+    }
+
+    public Action calibrateDown() {
+        return new CalibrateDown();
     }
 }
