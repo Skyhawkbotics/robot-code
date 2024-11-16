@@ -215,8 +215,8 @@ public class autonomous_MAIN_right extends LinearOpMode {
         TrajectoryActionBuilder leftCorner = drive.actionBuilder(/*start position*/new Pose2d(0.0, 5.0, 0.0)) // tells the robot where it's going to start?
 
                 //directions from start postion
-                .strafeTo(new Vector2d(0.0, -20.0)); // went to the left 10 units(inches?)
-        //.waitSeconds(3.0) //waits for 3 seconds
+                .strafeTo(new Vector2d(0.0, -20.0)) //strafe to right 20 units
+                .waitSeconds(3.0); //waits for 3 seconds
         //.lineToX(10.0) //foward 10 units, seems useless as it kind of gets crooked, and not the right angle
         //.strafeTo(new Vector2d(10, 15));
         //.turn(2) //turns way further than 2 radians, who knows why. real
