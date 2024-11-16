@@ -37,6 +37,7 @@ public class autonomous_MAIN extends LinearOpMode {
         private TouchSensor up_zero;
         private DcMotorEx up;
         private DcMotorEx out;
+
         //private Servo servo_CLAW;
         public Elevator(HardwareMap hardwareMap) {
             up_zero = hardwareMap.get(TouchSensor.class, "up_zero");
@@ -47,6 +48,8 @@ public class autonomous_MAIN extends LinearOpMode {
 
         //sets everything to home position
         public class CalibrateDown implements Action {
+            private double startTime = 0;
+            private ElapsedTime runtime = new ElapsedTime();
             private boolean initialized = false;
 
             @Override
@@ -55,6 +58,7 @@ public class autonomous_MAIN extends LinearOpMode {
                 if (!initialized) {
                     up.setVelocity(-500);
                     initialized = true;
+                    startTime = runtime.seconds();
                 }
                 packet.put("Button is pressed", String.valueOf(up_zero.isPressed()));
                 if (!up_zero.isPressed()) {
@@ -66,10 +70,11 @@ public class autonomous_MAIN extends LinearOpMode {
                     //servo_CLAW.setPosition(0);
 
                     //zero out "out"
-                    out.setTargetPosition(-1008);
-                    out.setVelocity(400);
-                    out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    return false;
+                    if (runtime.seconds() - startTime > 20) {
+                        return false;
+                    } else {
+                        return true;
+                    }
                 }
 
             }
@@ -174,12 +179,17 @@ public class autonomous_MAIN extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0.0,0.0,0.0));
+        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0.0, 0.0, 0.0));
         //initalize up using position mode basically just copied from somewhere
         up = hardwareMap.get(DcMotorEx.class, "up"/*this is the name of the motor on the acutal robot (changed through driver hub)*/);
         up.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         up.setMode(DcMotor.RunMode.RUN_USING_ENCODER); //using velocity mode!
         up.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        out = hardwareMap.get(DcMotorEx.class, "out");
+        out.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        out.setTargetPosition(0);
+        out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         //initalize out
         //out = hardwareMap.get(DcMotorEx.class, "out");
@@ -204,19 +214,17 @@ public class autonomous_MAIN extends LinearOpMode {
         //build the  trajectory leftCorner
         TrajectoryActionBuilder leftCorner = drive.actionBuilder(/*start position*/new Pose2d(0.0, 5.0, 0.0)) // tells the robot where it's going to start?
 
-        //directions from start postion
-            .strafeTo(new Vector2d(0.0, 10.0)); // went to the left 10 units(inches?)
-            //.waitSeconds(3.0) //waits for 3 seconds
-            //.lineToX(10.0) //foward 10 units, seems useless as it kind of gets crooked, and not the right angle
-            //.strafeTo(new Vector2d(10, 15));
-            //.turn(2) //turns way further than 2 radians, who knows why. real
-            //    .setTangent(Math.toRadians(180));
-
-
+                //directions from start postion
+                .strafeTo(new Vector2d(0.0, 10.0)); // went to the left 10 units(inches?)
+        //.waitSeconds(3.0) //waits for 3 seconds
+        //.lineToX(10.0) //foward 10 units, seems useless as it kind of gets crooked, and not the right angle
+        //.strafeTo(new Vector2d(10, 15));
+        //.turn(2) //turns way further than 2 radians, who knows why. real
+        //    .setTangent(Math.toRadians(180));
 
 
         //main loop
-        while(!opModeIsActive() && !isStopRequested()) {
+        while (!opModeIsActive() && !isStopRequested()) {
 
 
         }
@@ -226,6 +234,9 @@ public class autonomous_MAIN extends LinearOpMode {
         Action leftCornerBuild;
         leftCornerBuild = leftCorner.build();
 
+        out.setTargetPosition(-1008);
+        out.setVelocity(400);
+        out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         Actions.runBlocking(
                 new SequentialAction(
                         elevator.calibrateDown()
@@ -237,12 +248,6 @@ public class autonomous_MAIN extends LinearOpMode {
                 )
         );
 
-        //zeros out up using the sensor, (goes down until button is pressed)
-        if (!up_zero.isPressed()) {
-            up.setVelocity(-500);
-        } else {
-            up.setVelocity(0);
-        }
     }
 }
 
