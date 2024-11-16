@@ -2,18 +2,12 @@ package org.firstinspires.ftc.teamcode;
 
 import androidx.annotation.NonNull;
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.acmerobotics.roadrunner.ParallelAction;
+import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.SequentialAction;
-import com.acmerobotics.roadrunner.SleepAction;
-import com.acmerobotics.roadrunner.Trajectory;
+import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.Vector2d;
-import com.acmerobotics.roadrunner.TrajectoryBuilder;
-
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -22,17 +16,11 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.acmerobotics.roadrunner.*;
 
-import java.lang.Math;
-
-import kotlin.OverloadResolutionByLambdaReturnType;
-
-@Autonomous(name = "autonomous_MAIN")
-public class autonomous_MAIN extends LinearOpMode {
+@Autonomous(name = "autonomous_MAIN_left")
+public class autonomous_MAIN_left extends LinearOpMode {
     public class Elevator {
         private TouchSensor up_zero;
         private DcMotorEx up;
@@ -215,7 +203,7 @@ public class autonomous_MAIN extends LinearOpMode {
         TrajectoryActionBuilder leftCorner = drive.actionBuilder(/*start position*/new Pose2d(0.0, 5.0, 0.0)) // tells the robot where it's going to start?
 
                 //directions from start postion
-                .strafeTo(new Vector2d(0.0, 10.0)); // went to the left 10 units(inches?)
+                .strafeTo(new Vector2d(0.0, -20.0)); // went to the left 10 units(inches?)
         //.waitSeconds(3.0) //waits for 3 seconds
         //.lineToX(10.0) //foward 10 units, seems useless as it kind of gets crooked, and not the right angle
         //.strafeTo(new Vector2d(10, 15));
@@ -244,7 +232,7 @@ public class autonomous_MAIN extends LinearOpMode {
                                 //leftCornerBuild,
                                 //elevator.elevatorMove(200, "out"),
                                 //elevator.elevatorMove(100, "up")
-                        //)
+                        //)x
                 )
         );
 
