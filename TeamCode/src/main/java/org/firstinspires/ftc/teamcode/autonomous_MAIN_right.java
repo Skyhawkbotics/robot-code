@@ -211,16 +211,16 @@ public class autonomous_MAIN_right extends LinearOpMode {
         //out.setVelocity(200);
         //out.setTargetPosition(-1088);
 
-        //build the  trajectory leftCorner
-        TrajectoryActionBuilder leftCorner = drive.actionBuilder(/*start position*/new Pose2d(0.0, 5.0, 0.0)) // tells the robot where it's going to start?
+        //build the  trajectory rightCorner
+        TrajectoryActionBuilder rightCorner = drive.actionBuilder(/*start position*/new Pose2d(0.0, 0.0, 0.0)) // tells the robot where it's going to start?
 
                 //directions from start postion
-                .strafeTo(new Vector2d(0.0, -20.0)) //strafe to right 20 units
+                .strafeTo(new Vector2d(0.0, -20.0)) // went to the left 10 units(inches?)
                 .waitSeconds(3.0); //waits for 3 seconds
-        //.lineToX(10.0) //foward 10 units, seems useless as it kind of gets crooked, and not the right angle
-        //.strafeTo(new Vector2d(10, 15));
-        //.turn(2) //turns way further than 2 radians, who knows why. real
-        //    .setTangent(Math.toRadians(180));
+                //.lineToX(10.0) //foward 10 units, seems useless as it kind of gets crooked, and not the right angle
+                //.strafeTo(new Vector2d(10, 15))
+                //.turn(2) //turns way further than 2 radians, who knows why. real
+                //.setTangent(Math.toRadians(180));
 
 
         //main loop
@@ -231,21 +231,22 @@ public class autonomous_MAIN_right extends LinearOpMode {
         waitForStart();
         if (isStopRequested()) return;
         //run the action leftCorner, first building it to make it runnable as a action, as a result we can no longer edit this action!
-        Action leftCornerBuild;
-        leftCornerBuild = leftCorner.build();
+        Action rightCornerBuild;
+        rightCornerBuild = rightCorner.build();
 
         out.setTargetPosition(-1008);
-        out.setVelocity(400);
+        out.setVelocity(500);
         out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
         Actions.runBlocking(
                 new SequentialAction(
-                        leftCornerBuild,
+                        rightCornerBuild,
                         elevator.calibrateDown()
                         //new ParallelAction(
                                 //leftCornerBuild,
                                 //elevator.elevatorMove(200, "out"),
                                 //elevator.elevatorMove(100, "up")
-                        //)x
+                        //)
                 )
         );
 

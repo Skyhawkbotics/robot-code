@@ -97,12 +97,12 @@ public class opmode_MAIN extends LinearOpMode {
                 if (/*up.getCurrentPosition() < arm_upper_lim && */gamepad2.dpad_up) {
                     //use velocity mode to move so it doesn't we all funky with the smoothing of position mode
                     up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                    up.setVelocity(400);
+                    up.setVelocity(1000);
                     up_true_target_pos = 0;
                 }
                 else if (!up_zero.isPressed() && gamepad2.dpad_down) {
                     up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                    up.setVelocity(-400);
+                    up.setVelocity(-1000);
                     up_true_target_pos = 0;
                 } else {
                     up.setPower(500);
