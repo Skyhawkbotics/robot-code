@@ -130,7 +130,7 @@ public final class MecanumDrive {
         private Rotation2d lastHeading;
         private boolean initialized;
 
-        public DriveLocalizer() {
+        public DriveLocalizer() { // setting the motor names to be motors
             leftFront = new OverflowEncoder(new RawEncoder(MecanumDrive.this.leftFront));
             leftBack = new OverflowEncoder(new RawEncoder(MecanumDrive.this.leftBack));
             rightBack = new OverflowEncoder(new RawEncoder(MecanumDrive.this.rightBack));
