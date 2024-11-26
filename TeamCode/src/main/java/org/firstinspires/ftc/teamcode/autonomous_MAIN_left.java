@@ -22,7 +22,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 @Autonomous(name = "autonomous_MAIN_left")
 public class autonomous_MAIN_left extends LinearOpMode {
     public class Elevator {
-        private TouchSensor up_zero;
+        private TouchSensor up_zero; // 
         private DcMotorEx up;
         private DcMotorEx out;
 
