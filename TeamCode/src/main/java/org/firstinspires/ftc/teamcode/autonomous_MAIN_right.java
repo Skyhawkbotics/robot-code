@@ -11,12 +11,12 @@ import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Trajectory;
-import com.acmerobotics.roadrunner.Vector2d;
+import com.acmerobotics.roadrunner.Vector2d; // VECTOR
 import com.acmerobotics.roadrunner.TrajectoryBuilder;
 
-import com.acmerobotics.roadrunner.ftc.Actions;
+import com.acmerobotics.roadrunner.ftc.Actions; // AHA I FOUND YOU
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode; // called from the start
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -32,7 +32,7 @@ import java.lang.Math;
 import kotlin.OverloadResolutionByLambdaReturnType;
 
 @Autonomous(name = "autonomous_MAIN_right")
-public class autonomous_MAIN_right extends LinearOpMode {
+public class autonomous_MAIN_right extends LinearOpMode { // extends means inherits from linear op mode
     public class Elevator {
         private TouchSensor up_zero;
         private DcMotorEx up;
@@ -47,42 +47,12 @@ public class autonomous_MAIN_right extends LinearOpMode {
         }
 
         //sets everything to home position
-        public class CalibrateDown implements Action {
-            private double startTime = 0;
-            private ElapsedTime runtime = new ElapsedTime();
-            private boolean initialized = false;
-
-            @Override
-            public boolean run(@NonNull TelemetryPacket packet) {
-                //zero out "up" using button "up_zero"
-                if (!initialized) {
-                    up.setVelocity(-500);
-                    initialized = true;
-                    startTime = runtime.seconds();
-                }
-                packet.put("Button is pressed", String.valueOf(up_zero.isPressed()));
-                if (!up_zero.isPressed()) {
-                    return true;
-                } else {
-                    up.setVelocity(0);
-
-                    //zero out "claw" servo
-                    //servo_CLAW.setPosition(0);
-
-                    //zero out "out"
-                    if (runtime.seconds() - startTime > 20) {
-                        return false;
-                    } else {
-                        return true;
-                    }
-                }
-
-            }
-        }
 
 //moves up to specified position
         public class ElevatorMove implements Action {
-
+            /* Implements means to extend (inherit) but to give it a bodies to methods in the interface WHERE IS HTE INTERFACE THO interface is in action but where is action
+            (I think its a road runner thing) Yes, its a road runner import This class basically runs the elevator up and down */
+    // Variables for the Viper slide apparent going down?
             private int pos = 0;
             private String motor = "";
             private int true_target_pos = 0;
@@ -94,18 +64,18 @@ public class autonomous_MAIN_right extends LinearOpMode {
 
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
-                //movement using velocity mode to a certain position pos
+                //Okay So I think what this does is it makes sure hte Current position of the viper slide is 0?
                 if (motor == "up") {
-                    if (up.getCurrentPosition() < pos) {
+                    if (up.getCurrentPosition() < pos) { // If the current position is less than 0 go up
                         true_target_pos = 0;
                         up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                         up.setVelocity(500);
-                    } else if (up.getCurrentPosition() > pos) {
+                    } else if (up.getCurrentPosition() > pos) { // go down
                         true_target_pos = 0;
                         up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                         up.setVelocity(-500);
                     }  else {
-                        if (true_target_pos == 0) {
+                        if (true_target_pos == 0) { //
                             up.setTargetPosition(up.getCurrentPosition());
                             true_target_pos = up.getCurrentPosition();
                         }
@@ -113,7 +83,7 @@ public class autonomous_MAIN_right extends LinearOpMode {
                         return false;
                     }
                     return false;
-                } else if (motor == "out") {
+                } else if (motor == "out") { // so if the motor is out... what is out the string motor... also setting it to 0
                     if (out.getCurrentPosition() < pos) {
                         true_target_pos = 0;
                         out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -139,7 +109,8 @@ public class autonomous_MAIN_right extends LinearOpMode {
 
         }
 
-        public class ClawMove implements Action {
+        public class ClawMove implements Action { // okay chat we know this same drill Claw move is a class which will take actions methods and do some stuff
+            // variables
             private double pos;
             public ClawMove(double pos_input) {
                 pos = pos_input;
@@ -151,10 +122,9 @@ public class autonomous_MAIN_right extends LinearOpMode {
             }
 
         }
-
-        public Action calibrateDown() {
-            return new CalibrateDown();
-        }
+       // public Action calibrateDown() { // what is this
+       //     return new autonomous_MAIN_right.Elevator.calibrateDown();
+      //  }
 
         public Action elevatorMove(int pos, String motor) {
             return new  ElevatorMove(pos, motor);
@@ -177,7 +147,7 @@ public class autonomous_MAIN_right extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
 
     @Override
-    public void runOpMode() throws InterruptedException {
+    public void runOpMode() throws InterruptedException { // run op mode I guess is the auto
 
         MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0.0, 0.0, 0.0));
         //initalize up using position mode basically just copied from somewhere
@@ -198,12 +168,12 @@ public class autonomous_MAIN_right extends LinearOpMode {
         //out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         //initialize claw servo
-        servo_CLAW = hardwareMap.get(CRServo.class, "claw");
+        servo_CLAW = hardwareMap.get(CRServo.class, "claw"); // I think hardware map might be like a cata of all parts  where class of servos get deisngated
 
         //initialize touch sensor
-        up_zero = hardwareMap.get(TouchSensor.class, "up_zero");
+        up_zero = hardwareMap.get(TouchSensor.class, "up_zero");// yeah
 
-        Elevator elevator = new Elevator(hardwareMap);
+        Elevator elevator = new Elevator(hardwareMap);// but what does this mean, what value does this give out? (its never used anyway :skull:)
 
         waitForStart(); // it might wait for start
 
@@ -240,8 +210,8 @@ public class autonomous_MAIN_right extends LinearOpMode {
 
         Actions.runBlocking(
                 new SequentialAction(
-                        rightCornerBuild,
-                        elevator.calibrateDown()
+                       // rightCornerBuild,
+                        //elevator.calibrateDown()
                         //new ParallelAction(
                                 //leftCornerBuild,
                                 //elevator.elevatorMove(200, "out"),
