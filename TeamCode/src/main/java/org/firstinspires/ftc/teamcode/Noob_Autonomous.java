@@ -66,7 +66,6 @@ public class Noob_Autonomous extends LinearOpMode { // extends means inherits fr
         if (isStopRequested()) return;
         //run the action leftCorner, first building it to make it runnable as a action, as a result we can no longer edit this action!
         Action rightCornerBuild;
-        rightCornerBuild = rightCorner.build();
         Actions.runBlocking(
                 new SequentialAction(
                         // rightCornerBuild,
