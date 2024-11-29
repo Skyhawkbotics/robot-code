@@ -9,8 +9,7 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
 
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -31,35 +30,34 @@ public class Spool_Test extends LinearOpMode {
 
     // Declare motor and gamepad
     private DcMotorEx revMotor;  // Motor to control
-    private Gamepad gamepad1;   // Gamepad for player 1
-
     @Override
     public void runOpMode() throws InterruptedException {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         //setup arm to use velocity
         revMotor = hardwareMap.get(DcMotorEx.class, "revMotor");
-        revMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        revMotor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        revMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        revMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         revMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         // Initialize the hardware (motor and gamepad)
 
         // Initialize the gamepad (it is automatically available, but we just ensure it's referenced here)
-        gamepad1 = this.gamepad1;
 
         // Wait for the game to start
         waitForStart();
 
         // Loop to control the motor based on gamepad input
         while (opModeIsActive()) {
-
-            // Check if the left bumper button on the gamepad is pressed
-            if (gamepad1.left_bumper) {
-                revMotor.setPower(0.1);  // Set motor power to full (spin forward)
+            if (gamepad1.a) {
+                //use velocity mode to move so it doesn't we all funky with the smoothing of position mode
+                revMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                revMotor.setVelocity(100);
+            } else if (gamepad1.y) {
+                revMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                revMotor.setVelocity(-10);
             } else {
-                revMotor.setPower(0.0);  // Stop the motor when the bumper is not pressed
+                revMotor.setVelocity(0);
             }
-
             // Telemetry to display motor status on the driver station
             //telemetry stuff (prints stuff on the telemetry (driver hub))
             telemetry.addData("armCurrentPosition", revMotor.getCurrentPosition());
