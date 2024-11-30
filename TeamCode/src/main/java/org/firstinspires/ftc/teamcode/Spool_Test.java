@@ -37,7 +37,7 @@ public class Spool_Test extends LinearOpMode {
         //setup arm to use velocity
         revMotor = hardwareMap.get(DcMotorEx.class, "revMotor");
         revMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        revMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        revMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         revMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         // Initialize the hardware (motor and gamepad)
 
@@ -50,10 +50,12 @@ public class Spool_Test extends LinearOpMode {
         while (opModeIsActive()) {
             if (gamepad1.a) {
                 //use velocity mode to move so it doesn't we all funky with the smoothing of position mode
-                revMotor.setVelocity(100);
+                revMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                revMotor.setVelocity(1000);
                  telemetry.addData("A down", true);
             } else if (gamepad1.y) {
-                revMotor.setVelocity(-10);
+                revMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                revMotor.setVelocity(-100   0);
                 telemetry.addData("Y down", true);
             } else {
                 revMotor.setVelocity(0);
