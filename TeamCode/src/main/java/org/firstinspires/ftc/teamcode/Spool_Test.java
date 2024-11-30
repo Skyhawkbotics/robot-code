@@ -51,10 +51,13 @@ public class Spool_Test extends LinearOpMode {
             if (gamepad1.a) {
                 //use velocity mode to move so it doesn't we all funky with the smoothing of position mode
                 revMotor.setVelocity(100);
+                 telemetry.addData("A down", true);
             } else if (gamepad1.y) {
                 revMotor.setVelocity(-10);
+                telemetry.addData("Y down", true);
             } else {
                 revMotor.setVelocity(0);
+                telemetry.addData("Nothing pressed", true);
             }
             // Telemetry to display motor status on the driver station
             //telemetry stuff (prints stuff on the telemetry (driver hub))
