@@ -1,52 +1,33 @@
 package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.Gamepad;
-
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.acmerobotics.roadrunner.PoseVelocity2d;
-import com.acmerobotics.roadrunner.Vector2d;
-
-
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.HardwareDeviceCloseOnTearDown;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.TouchSensor;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.tuning.TuningOpModes;
+@TeleOp(name="Rev_Motor_Control")
+public class Rev_Motor_Control extends LinearOpMode {
 
-
-//built from LocalizationTest, but adding the arm stuff
-
-@TeleOp(name="Rev Motor Control")
-public class Spool_Test extends LinearOpMode {
-
-    // Declare motor and gamepad
-    private DcMotorEx revMotor;  // Motor to control
+    // Declare motor and game pad
+    private DcMotorEx revMotor;  // Rev motor to control
     @Override
     public void runOpMode() throws InterruptedException {
-        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry()); // sets up tel em
 
         //setup arm to use velocity
         revMotor = hardwareMap.get(DcMotorEx.class, "revMotor");
         revMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         revMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         revMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        // Initialize the hardware (motor and gamepad)
 
-        // Initialize the gamepad (it is automatically available, but we just ensure it's referenced here)
 
         // Wait for the game to start
         waitForStart();
 
-        // Loop to control the motor based on gamepad input
+        // Controls
         while (opModeIsActive()) {
             if (gamepad1.a) {
                 //use velocity mode to move so it doesn't we all funky with the smoothing of position mode
@@ -55,7 +36,7 @@ public class Spool_Test extends LinearOpMode {
                  telemetry.addData("A down", true);
             } else if (gamepad1.y) {
                 revMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                revMotor.setVelocity(-100   0);
+                revMotor.setVelocity(-1000);
                 telemetry.addData("Y down", true);
             } else {
                 revMotor.setVelocity(0);
@@ -72,7 +53,6 @@ public class Spool_Test extends LinearOpMode {
             packet.fieldOverlay().setStroke("#3F51B5");
             FtcDashboard.getInstance().sendTelemetryPacket(packet);
 
-            //increment the last_time
 
         }
     }

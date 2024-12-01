@@ -32,7 +32,7 @@ import java.lang.Math;
 import kotlin.OverloadResolutionByLambdaReturnType;
 
 @Autonomous(name = "Noob_Autonomous")
-public class Noob_Autonomous extends LinearOpMode { // extends means inherits from linear op mode
+public class    Noob_Autonomous extends LinearOpMode { // extends means inherits from linear op mode
     double last_time = 0;
     private ElapsedTime runtime = new ElapsedTime();
 
