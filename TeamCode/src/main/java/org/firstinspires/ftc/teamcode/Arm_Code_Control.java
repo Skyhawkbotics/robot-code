@@ -8,6 +8,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
+
 @TeleOp(name="Arm_Code_Control")
 public class Arm_Code_Control extends LinearOpMode {
 
@@ -19,12 +21,18 @@ public class Arm_Code_Control extends LinearOpMode {
      outtake claw on control hub 1
      back left is on Control hub 2 ????
      front left is on Control hub 1 ??????
+     We need to also config touch sensor
      */
+    // These variables can be inside the field but they don't have to - its just because less writing in general I think
     private DcMotorEx revMotor;
     private CRServo servo_Intake;
     private CRServo servo_intake_wrist;
 
-    // private DcMotorEx viper_slide_Motor;
+    private DcMotorEx viper_slide_Motor;
+    // From my understanding - Up true Target_pos stores the position of viper slide as it changes from set.velocity
+    // int viper_true_target_pos;
+    //private TouchSensor up_zero;
+
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -36,15 +44,18 @@ public class Arm_Code_Control extends LinearOpMode {
         revMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         revMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        //viper_slide_Motor = hardwareMap.get(DcMotorEx.class, "Viper_SlideMotor");
-        //viper_slide_Motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        //viper_slide_Motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        // viper_slide_Motor.setDirection(DcMotorSimple.Direction.REVERSE);
+        viper_slide_Motor = hardwareMap.get(DcMotorEx.class, "Viper_Slide_Motor");
+        viper_slide_Motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        viper_slide_Motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        viper_slide_Motor.setDirection(DcMotorSimple.Direction.REVERSE);
 
 
         // Setup both servos
         servo_Intake = hardwareMap.get(CRServo.class, "outtake"); //control hub 1
         servo_intake_wrist = hardwareMap.get(CRServo.class, "outtakeWrist");
+
+        // Upzero Sensor setup
+        // up_zero = hardwareMap.get(TouchSensor.class, "up_zero");
 
 
 
@@ -86,9 +97,46 @@ public class Arm_Code_Control extends LinearOpMode {
                 telemetry.addData("Y down", true);
             } else {
                 viper_slide_Motor.setVelocity(0);
-                telemetry.addData("Viper slide statoinary ", true);
+                telemetry.addData("Viper slide stationary ", true);
             }
             */
+            /* if (gamepad2.left_stick_y > 0.5) {
+                //use velocity mode to move so it doesn't we all funky with the smoothing of position mode
+                viper_slide_Motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                viper_slide_Motor.setVelocity(1000);
+                viper_true_target_pos = 0;
+                telemetry.addData("Y stick Up", true);
+
+                // why is this declared again?
+            } else if (!up_zero.isPressed() && gamepad2.left_stick_y < -0.5) {
+
+                viper_slide_Motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                viper_slide_Motor.setVelocity(-1000);
+                viper_true_target_pos = 0;
+                telemetry.addData("Y stick Down", true);
+
+
+
+            } else {
+                viper_slide_Motor.setPower(500);
+                //use position mode to stay up, as otherwise it would fall down. do some fancy stuff with up_true_target_pos to avoid the issue of it very slightly falling every tick
+                if (viper_true_target_pos == 0) { // always true after any input and from the start
+                    viper_slide_Motor.setTargetPosition(viper_slide_Motor.getCurrentPosition());
+                    // makes the encoder set the target position based on the current position of the motor, which I think is different depending on position
+
+                    viper_true_target_pos = viper_slide_Motor.getCurrentPosition();
+                    // sets true target to current position -
+                    telemetry.addData("Viper slide stationary ", true);
+
+                }
+                viper_slide_Motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                telemetry.addData("Viper slide stationary ", true);
+
+                // returns to current position set from set target position
+                // OKAY SO basically after each action, the viper slide sets its target position to the current position, then calls it motor to run to position, aka making it stay there
+            }
+            */
+
             // Servo Controlling Outtake
             if (gamepad2.right_trigger > 0.8/* && servo_CLAW_position < 1000000000*/) {
                 // Uses set power for movement (parameters of servo is [-1,1])
