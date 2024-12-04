@@ -24,6 +24,8 @@ public class Arm_Code_Control extends LinearOpMode {
     private CRServo servo_Intake;
     private CRServo servo_intake_wrist;
 
+     private DcMotorEx viper_slide_Motor;
+
     @Override
     public void runOpMode() throws InterruptedException {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry()); // sets up tel em
@@ -33,6 +35,12 @@ public class Arm_Code_Control extends LinearOpMode {
         revMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         revMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         revMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        //viper_slide_Motor = hardwareMap.get(DcMotorEx.class, "Viper_SlideMotor");
+        //viper_slide_Motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //viper_slide_Motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        // viper_slide_Motor.setDirection(DcMotorSimple.Direction.REVERSE);
+
 
         // Setup both servos
         servo_Intake = hardwareMap.get(CRServo.class, "outtake"); //control hub 1
@@ -67,7 +75,20 @@ public class Arm_Code_Control extends LinearOpMode {
                 revMotor.setVelocity(0);
                 telemetry.addData("Intake Slide Stationary", true);
             }
-
+           /* if (gamepad2.right_stick_y > 0.5) {
+                //use velocity mode to move so it doesn't we all funky with the smoothing of position mode
+                viper_slide_Motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                viper_slide_Motor.setVelocity(1000);
+                telemetry.addData("A down", true);
+            } else if (gamepad2.y) {
+                viper_slide_Motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                viper_slide_Motor.setVelocity(-1000);
+                telemetry.addData("Y down", true);
+            } else {
+                viper_slide_Motor.setVelocity(0);
+                telemetry.addData("Viper slide statoinary ", true);
+            }
+            */
             // Servo Controlling Outtake
             if (gamepad2.right_trigger > 0.8/* && servo_CLAW_position < 1000000000*/) {
                 // Uses set power for movement (parameters of servo is [-1,1])
