@@ -34,11 +34,17 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class Rev_Motor_Control extends LinearOpMode {
 // Front is on expansion hub port 3
     // viper slide is on expansion hub port 2
+    // outake rotator on control hub 0
+    // outtake claw on control hub 1
     // Declare motor and game pad
+    // back left is on ctonrl hub 2
+    // front left is on congtrol hub 1
+    //
     private DcMotorEx revMotor;
     private CRServo servo_Intake; // Rev motor to control
 
     private CRServo servo_Outtake;
+    private CRServo servo_Outtake_wrist;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -50,8 +56,8 @@ public class Rev_Motor_Control extends LinearOpMode {
         revMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         revMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        servo_Outtake = hardwareMap.get(CRServo.class, "claw");
-        servo_Intake = hardwareMap.get(CRServo.class, "claw2");
+        servo_Outtake = hardwareMap.get(CRServo.class, "outtake"); //control hub 1
+        servo_Outtake_wrist = hardwareMap.get(CRServo.class, "outtakeWrist");
 
 
 
@@ -83,11 +89,11 @@ public class Rev_Motor_Control extends LinearOpMode {
             }
 
             if (gamepad2.left_trigger > 0.8) {
-                servo_Intake.setPower(1);
+                servo_Outtake_wrist.setPower(1);
             } else if (gamepad2.left_bumper/* && servo_CLAW_position > -100000000*/) { //TODO: these limits too.
-                servo_Intake.setPower(-1);
+                servo_Outtake_wrist.setPower(-1);
             } else {
-                servo_Intake.setPower(0);
+                servo_Outtake_wrist.setPower(0);
             }
 
             // Telemetry to display motor status on the driver station
