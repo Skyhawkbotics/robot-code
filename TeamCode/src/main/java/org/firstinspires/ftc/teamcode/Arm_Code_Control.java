@@ -24,7 +24,7 @@ public class Arm_Code_Control extends LinearOpMode {
     private CRServo servo_Intake;
     private CRServo servo_intake_wrist;
 
-     private DcMotorEx viper_slide_Motor;
+    // private DcMotorEx viper_slide_Motor;
 
     @Override
     public void runOpMode() throws InterruptedException {
