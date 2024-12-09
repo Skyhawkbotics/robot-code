@@ -31,15 +31,18 @@ public class opmode_MAIN extends LinearOpMode {
     //setup arm variable
     private DcMotorEx up;
     private DcMotorEx out;
-    private CRServo servo_CLAW;
+    private CRServo servo_outtake;
+    private CRServo servo_intake;
+    private Servo servo_intake_wrist;
+    private Servo servo_outtake_wrist;
     private TouchSensor up_zero;
-    //private boolean claw_closed = false;
-
+    private TouchSensor out_zero;
+    private TouchSensor out_transfer;
     int arm_upper_lim = 6000;
     double servo_CLAW_power = 0.0;
-    double servo_CLAW_position = 0.0;
     double manualOutControl = 0;
     int up_true_target_pos;
+    int out_true_target_pos;
 
     //time stuff
     double last_time = 0;
@@ -48,18 +51,18 @@ public class opmode_MAIN extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+        
 
             //setup arm to use velocity
             up = hardwareMap.get(DcMotorEx.class, "up");
             up.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            up.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             up.setDirection(DcMotorSimple.Direction.REVERSE);
 
             //example position setup
             out = hardwareMap.get(DcMotorEx.class, "out");
             out.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            out.setTargetPosition(0);
-            out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             out.setDirection(DcMotorSimple.Direction.REVERSE);
 
             //example velocity setup
@@ -68,10 +71,18 @@ public class opmode_MAIN extends LinearOpMode {
             //up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             //up.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        servo_CLAW = hardwareMap.get(CRServo.class, "claw");
+        //setup servos for intake and outtake
+        servo_intake = hardwareMap.get(CRServo.class, "intake");
+        servo_outtake = hardwareMap.get(CRServo.class, "outtake");
+        servo_intake_wrist = hardwareMap.get(Servo.class, "intakeWrist");
+        servo_outtake_wrist = hardwareMap.get(Servo.class, "outtakeWrist");
+
+
 
         //initilize touch sensor
         up_zero = hardwareMap.get(TouchSensor.class, "up_zero");
+        out_zero = hardwareMap.get(TouchSensor.class, "out_zero");
+        out_transfer = hardwareMap.get(TouchSensor.class, "out_transfer");
 
 
         if (TuningOpModes.DRIVE_CLASS.equals(MecanumDrive.class)) {
@@ -114,6 +125,26 @@ public class opmode_MAIN extends LinearOpMode {
                     up.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 }
 
+                if (gamepad2.dpad_left) {
+                    //use velocity mode to move so it doesn't we all funky with the smoothing of position mode
+                    out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    out.setVelocity(1000);
+                    out_true_target_pos = 0;
+                }
+                else if (!out_zero.isPressed() && gamepad2.dpad_right) {
+                    out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    out.setVelocity(-1000);
+                    out_true_target_pos = 0;
+                } else {
+                    out.setPower(500);
+                    //use positon mode to stay up, as otherwise it would fall down. do some fancy stuff with up_true_target_pos to avoid the issue of it very slightly falling every tick
+                    if (out_true_target_pos == 0) {
+                        out.setTargetPosition(out.getCurrentPosition());
+                        out_true_target_pos = out.getCurrentPosition();
+                    }
+                    out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                }
+
                 //make sure the upper and lower limits are actually at the upper and lower limits
                 if (up.getCurrentPosition() < 0) {
                     up.setTargetPosition(0);
@@ -121,52 +152,27 @@ public class opmode_MAIN extends LinearOpMode {
                     up.setTargetPosition(arm_upper_lim);
                 }
 
-                //manual out control
-                if (gamepad2.left_bumper) {
-                    manualOutControl += -1000 * (runtime.seconds() - last_time); //TODO: make this -=
-                } else if ((gamepad2.left_trigger > 0.8f)) {
-                    manualOutControl += 1000 * (runtime.seconds() - last_time);
-                }
 
-                //reset manual out control
-                if (gamepad2.a) {
-                    manualOutControl = 0;
-                }
-
-                out.setVelocity(500);
-                // Keep the current expression of arm*2
-                // add onto the expression: + myVariable
-                // Increment myVariable so u have manual control
-                // To "return" back to normal business set it to 0
-                out.setTargetPosition(((int) ((up.getCurrentPosition() * 1/2.0640625) + manualOutControl)));
 
                 // Gamepad2.right_trigger is analog, so we need a compatative statment to use it as a digital button.
-                if (gamepad2.right_trigger > 0.8/* && servo_CLAW_position < 1000000000*/) { //TODO: find a better solution for this limits so we can actually use them
-                    servo_CLAW_power = 1;
-                    //servo_CLAW_position += 1 * (runtime.seconds() - last_time);
-                } else if (gamepad2.right_bumper/* && servo_CLAW_position > -100000000*/) { //TODO: these limits too.
-                    servo_CLAW_power = -1;
-                    //servo_CLAW_position += -1 * (runtime.seconds() - last_time);
+                //servo intake control
+                if (gamepad2.right_trigger > 0.8/* && servo_CLAW_position < 1000000000*/) { //NO LONGER NEEDED: find a better solution for this limits so we can actually use them
+                    servo_intake.setPower(1);
+                } else if (gamepad2.right_bumper) { //NO LONGER NEEDED: these limits too.
+                    servo_intake.setPower(-1);
                 } else {
-                    servo_CLAW_power = 0;
+                    servo_intake.setPower(0);
                 }
 
-                servo_CLAW.setPower(servo_CLAW_power);
-
-                //NEW CLAW CODE WITH POSITION MODE!
-                /*if (gamepad2.right_bumper) {
-                    if (claw_closed) {
-                        claw_closed = false;
-                    } else if (!claw_closed) {
-                        claw_closed = true;
-                    }
-                }
-                if (claw_closed) {
-                    servo_CLAW.setPosition(0.3703703704);
+                //servo outtake control
+                if (gamepad2.left_trigger > 0.8/* && servo_CLAW_position < 1000000000*/) { //NO LONGER NEEDED: find a better solution for this limits so we can actually use them
+                    servo_outtake.setPower(1);
+                } else if (gamepad2.left_bumper) { //NO LONGER NEEDED: these limits too.
+                    servo_outtake.setPower(-1);
                 } else {
-                    servo_CLAW.setPosition(0);
+                    servo_outtake.setPower(0);
                 }
-                servo_CLAW.getPosition()*/
+
 
                 //telemetry stuff (prints stuff on the telemetry (driver hub))
                 telemetry.addData("x", drive.pose.position.x);
