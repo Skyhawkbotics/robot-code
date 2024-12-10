@@ -44,6 +44,22 @@ public class opmode_MAIN extends LinearOpMode {
     int up_true_target_pos;
     int out_true_target_pos;
 
+
+
+
+    //vars for set positions for transfer:
+    ///TODO: CHANGE THESE
+    int transfer_step = 0;
+    double intake_wrist_pos_transfer = 10;
+    double outrake_wrist_pos_transfer = 200;
+    double out_pos_transfer = 30;
+    double up_pos_transfer1 = 20;
+    double up_pos_transfer2 = 10;
+    double up_pos_transfer3 = 20;
+    double outtake_wrist_pos_ready = 300;
+
+
+
     //time stuff
     double last_time = 0;
     private ElapsedTime     runtime = new ElapsedTime();
@@ -171,6 +187,97 @@ public class opmode_MAIN extends LinearOpMode {
                     servo_outtake.setPower(-1);
                 } else {
                     servo_outtake.setPower(0);
+                }
+
+
+
+                //MACROS
+
+                //auto-transfer
+                if (gamepad2.y) {
+                    if (transfer_step == 0) { //get in position
+                        //1. get out to the position of out_transfer limit switch
+                        if (!out_transfer.isPressed() && out.getCurrentPosition() > out_pos_transfer) {
+                            out.setVelocity(-100);
+                        } else if (!out_transfer.isPressed() && out.getCurrentPosition() < out_pos_transfer) {
+                            out.setVelocity(100);
+                        } else {
+                            //do more fancy stuff to make it stay at the right value!
+                            out.setVelocity(0);
+                            out_true_target_pos = out.getCurrentPosition();
+                            out.setTargetPosition(out.getCurrentPosition());
+                            out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        }
+                        //2. set position of servo_intake_wrist
+                        servo_intake_wrist.setPosition(intake_wrist_pos_transfer);
+                        //3. put viper slide up a bit
+                        if (up.getCurrentPosition() > up_pos_transfer1) {
+                            up.setVelocity(-100);
+                        } else if (up.getCurrentPosition() < up_pos_transfer1) {
+                            up.setVelocity(100);
+                        } else {
+                            //do more fancy stuff to make it stay at the right value!
+                            up.setVelocity(0);
+                            up_true_target_pos = up.getCurrentPosition();
+                            up.setTargetPosition(up.getCurrentPosition());
+                            up.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        }
+                        servo_outtake_wrist.setPosition(outrake_wrist_pos_transfer);
+                    } else if (transfer_step == 1) { //put claws in positiion
+                        //viper slide back down a bit, can't go to this pos at start because when rotating claw would bump into sample in other claw!
+                        if (up.getCurrentPosition() > up_pos_transfer2) {
+                            up.setVelocity(-50);
+                        } else if (up.getCurrentPosition() < up_pos_transfer2) {
+                            up.setVelocity(50);
+                        } else {
+                            //do more fancy stuff to make it stay at the right value!
+                            up.setVelocity(0);
+                            up_true_target_pos = up.getCurrentPosition();
+                            up.setTargetPosition(up.getCurrentPosition());
+                            up.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        }
+                        servo_outtake.setPower(1); //set to recieve sample
+                    } else if (transfer_step == 2) { //sample into other claw
+                        servo_intake.setPower(-1); //spit out the sample!
+                        if (up.getCurrentPosition() > up_pos_transfer3) {
+                            up.setVelocity(-50);
+                        } else if (up.getCurrentPosition() < up_pos_transfer3) {
+                            up.setVelocity(50);
+                        } else {
+                            //do more fancy stuff to make it stay at the right value!
+                            up.setVelocity(0);
+                            up_true_target_pos = up.getCurrentPosition();
+                            up.setTargetPosition(up.getCurrentPosition());
+                            up.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        }
+                    } else if (transfer_step == 3) { //
+                        //zero out the out slide
+                        if (!out_zero.isPressed() && out.getCurrentPosition() > 0) {
+                            out.setVelocity(-100);
+                        } else if (!out_zero.isPressed() && out.getCurrentPosition() < 0) {
+                            out.setVelocity(100);
+                        } else {
+                            //do more fancy stuff to make it stay at the right value!
+                            out.setVelocity(0);
+                            out_true_target_pos = out.getCurrentPosition();
+                            out.setTargetPosition(out.getCurrentPosition());
+                            out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        }
+                        //get outtake in position outtake
+                        servo_outtake_wrist.setPosition(outtake_wrist_pos_ready);
+                    }
+
+                    //moving on, to next step if everything is accomplished. If changing something in one of the steps, make sure to change the if statment!
+                    if (out_transfer.isPressed() && up.getCurrentPosition() == up_pos_transfer1 && servo_intake_wrist.getPosition() == intake_wrist_pos_transfer && servo_outtake_wrist.getPosition() == out_pos_transfer && transfer_step < 1) {
+                        transfer_step = 1;
+                    } else if (transfer_step == 1 && up.getCurrentPosition() == up_pos_transfer2) {
+                        transfer_step = 2;
+                    } else if (transfer_step == 2 &&  up.getCurrentPosition() == up_pos_transfer3) {
+                        transfer_step = 3;
+                    }
+
+                } else { //reset so it will work again
+                    transfer_step = 0;
                 }
 
 
