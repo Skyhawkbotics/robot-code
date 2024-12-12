@@ -162,7 +162,7 @@ public class Right_Auto extends LinearOpMode { // extends means inherits from li
         // make a Claw instance
         Elevator elevator = new Elevator(hardwareMap);
         // make a Lift instance
-        Elevator_claw outtake = new Elevator_claw(hardwareMap);
+        Elevator_claw elevator_claw = new Elevator_claw(hardwareMap);
 
         int visionOutputPosition = 1;
 
@@ -199,9 +199,9 @@ public class Right_Auto extends LinearOpMode { // extends means inherits from li
                 new SequentialAction(
                         trajectoryActionChosen,
                         elevator.Elevator_Up_Move(),
-                        trajectoryActionCloseOut,
-                        outtake.Elevator_Claw_Move(),
-                        elevator.Elevator_Down_Move()
+                        elevator_claw.Elevator_Claw_Move(),
+                        elevator.Elevator_Down_Move(),
+                        trajectoryActionCloseOut
                 )
         );
 
