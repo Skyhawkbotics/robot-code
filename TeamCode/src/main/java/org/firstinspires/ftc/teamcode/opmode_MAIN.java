@@ -207,6 +207,18 @@ public class opmode_MAIN extends LinearOpMode {
                 }
                 servo_intake_wrist.setPosition(servo_intake_wrist_location);
 
+                //SIMPLE TRANSFER BUTTON (turns on both servos at once)
+                if (gamepad2.a) {
+                    servo_outtake.setPower(1);//TODO: CHANGE THIS IF ITS WRONG
+                    servo_intake.setPower(-1);//TODO: CHANGE THIS IF ITS WRONG
+                }
+
+                //SIMPLE TRANSFER SETUP BUTTON (sets wrists to the right value)
+                if (gamepad2.b) {
+                    servo_intake_wrist_location = intake_wrist_pos_transfer; //TODO: CHANGE THIS VAR ABOVE!
+                    servo_outtake_wrist_location = outrake_wrist_pos_transfer; //TODO: CHANGE THIS VAR ABOVE!
+                }
+
                 //MACROS
 
                 //auto-transfer
