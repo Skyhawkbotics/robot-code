@@ -43,6 +43,8 @@ public class opmode_MAIN extends LinearOpMode {
     double manualOutControl = 0;
     int up_true_target_pos;
     int out_true_target_pos;
+    double servo_outtake_wrist_location = 0;
+    double servo_intake_wrist_location = 0;
 
 
 
@@ -112,8 +114,8 @@ public class opmode_MAIN extends LinearOpMode {
                 //driving code taken from LocalizationTest
                 drive.setDrivePowers(new PoseVelocity2d(
                         new Vector2d(
-                                -gamepad1.left_stick_y * 0.4,
-                                -gamepad1.left_stick_x * 0.4
+                                -gamepad1.left_stick_y * 0.7,
+                                -gamepad1.left_stick_x * 0.7
                         ),
                         -gamepad1.right_stick_x * 0.4
                 ));
@@ -121,15 +123,15 @@ public class opmode_MAIN extends LinearOpMode {
                 drive.updatePoseEstimate();
 
                 //arm code
-                if (/*up.getCurrentPosition() < arm_upper_lim && */gamepad2.dpad_up) {
+                if (gamepad2.left_stick_y < -0.1) { //left stick -, is going up!
                     //use velocity mode to move so it doesn't we all funky with the smoothing of position mode
                     up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                    up.setVelocity(1000);
+                    up.setVelocity(gamepad2.left_stick_y * -1200);
                     up_true_target_pos = 0;
                 }
-                else if (!up_zero.isPressed() && gamepad2.dpad_down) {
+                else if (!up_zero.isPressed() && gamepad2.left_stick_y > 0.1) { //left stick +, going down
                     up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                    up.setVelocity(-1000);
+                    up.setVelocity(gamepad2.left_stick_y * -1200);
                     up_true_target_pos = 0;
                 } else {
                     up.setPower(500);
@@ -141,15 +143,15 @@ public class opmode_MAIN extends LinearOpMode {
                     up.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 }
 
-                if (gamepad2.dpad_left) {
+                if (gamepad2.right_stick_y > 0.1) {
                     //use velocity mode to move so it doesn't we all funky with the smoothing of position mode
                     out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                    out.setVelocity(1000);
+                    out.setVelocity(gamepad2.right_stick_y * 500);
                     out_true_target_pos = 0;
                 }
-                else if (!out_zero.isPressed() && gamepad2.dpad_right) {
+                else if (!out_zero.isPressed() && gamepad2.right_stick_y < -0.1) {
                     out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                    out.setVelocity(-1000);
+                    out.setVelocity(gamepad2.right_stick_y * 500);
                     out_true_target_pos = 0;
                 } else {
                     out.setPower(500);
@@ -189,7 +191,21 @@ public class opmode_MAIN extends LinearOpMode {
                     servo_outtake.setPower(0);
                 }
 
+                // manual outtake wrist location
+                if (gamepad2.dpad_up) {
+                    servo_outtake_wrist_location += 0.05;
+                } if (gamepad2.dpad_down) {
+                    servo_outtake_wrist_location -= 0.05;
+                }
+                servo_outtake_wrist.setPosition(servo_outtake_wrist_location);
 
+                // manual intake wrist location
+                if (gamepad2.dpad_right) {
+                    servo_intake_wrist_location += 0.05;
+                } if (gamepad2.dpad_left) {
+                    servo_intake_wrist_location -= 0.05;
+                }
+                servo_intake_wrist.setPosition(servo_intake_wrist_location);
 
                 //MACROS
 
@@ -285,12 +301,17 @@ public class opmode_MAIN extends LinearOpMode {
                 telemetry.addData("x", drive.pose.position.x);
                 telemetry.addData("y", drive.pose.position.y);
                 telemetry.addData("heading (deg)", Math.toDegrees(drive.pose.heading.toDouble()));
-                telemetry.addData("armCurrentPosition", up.getCurrentPosition());
-                telemetry.addData("outCurrentPosition", out.getCurrentPosition());
-                telemetry.addData("manualOutControl", manualOutControl);
+
+                telemetry.addData("out_current_pos", out.getCurrentPosition());
+                telemetry.addData("out_true_target_pos", out_true_target_pos);
                 telemetry.addData("up_true_target_pos", up_true_target_pos);
                 telemetry.addData("up_current_pos", up.getCurrentPosition());
-                telemetry.addData("servo_claw_power", servo_CLAW_power);
+                telemetry.addData("intake_wrist_current_pos", servo_intake_wrist_location);
+                telemetry.addData("outtake_wrist_current_pos", servo_outtake_wrist_location);
+                telemetry.addData("gamepad2.left_stick_y", gamepad2.left_stick_y);
+
+
+
                 //4 telemetry.addData("clawCurrentPos", servo_CLAW.getPosition());
                 telemetry.update();
 
