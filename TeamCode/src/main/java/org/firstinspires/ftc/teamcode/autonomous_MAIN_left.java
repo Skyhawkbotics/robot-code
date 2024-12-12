@@ -18,6 +18,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.acmerobotics.roadrunner.TrajectoryBuilder;
 
 @Autonomous(name = "autonomous_MAIN_left")
 public class autonomous_MAIN_left extends LinearOpMode {
@@ -190,7 +191,7 @@ public class autonomous_MAIN_left extends LinearOpMode {
 
         //initialize touch sensor
         up_zero = hardwareMap.get(TouchSensor.class, "up_zero");
-
+        // constructor
         Elevator elevator = new Elevator(hardwareMap);
 
         waitForStart(); // it might wait for start

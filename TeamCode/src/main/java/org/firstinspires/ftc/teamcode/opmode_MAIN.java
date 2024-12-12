@@ -210,7 +210,7 @@ public class opmode_MAIN extends LinearOpMode {
                 //SIMPLE TRANSFER BUTTON (turns on both servos at once)
                 if (gamepad2.a) {
                     servo_outtake.setPower(1);//TODO: CHANGE THIS IF ITS WRONG
-                    servo_intake.setPower(-1);//TODO: CHANGE THIS IF ITS WRONG
+                    servo_intake.setPower(-1);//TODO: CHANGE THIS IF ITS WRONG // got it trev
                 }
 
                 //SIMPLE TRANSFER SETUP BUTTON (sets wrists to the right value)
