@@ -198,9 +198,9 @@ public class Right_Auto extends LinearOpMode { // extends means inherits from li
         Actions.runBlocking(
                 new SequentialAction(
                         trajectoryActionChosen,
-                        elevator.Elevator_Up_Move(),
-                        elevator_claw.Elevator_Claw_Move(),
-                        elevator.Elevator_Down_Move(),
+                        elevator.elevator_Up_Move(),
+                        elevator_claw.elevator_Claw_Move(),
+                        elevator.elevator_Down_Move(),
                         trajectoryActionCloseOut
                 )
         );
