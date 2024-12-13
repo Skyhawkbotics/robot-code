@@ -52,8 +52,8 @@ public class opmode_MAIN extends LinearOpMode {
     //vars for set positions for transfer:
     ///TODO: CHANGE THESE
     int transfer_step = 0;
-    double intake_wrist_pos_transfer = 10;
-    double outrake_wrist_pos_transfer = 200;
+    double intake_wrist_pos_transfer = 0.1;
+    double outrake_wrist_pos_transfer = 0.2;
     double out_pos_transfer = 30;
     double up_pos_transfer1 = 20;
     double up_pos_transfer2 = 10;
