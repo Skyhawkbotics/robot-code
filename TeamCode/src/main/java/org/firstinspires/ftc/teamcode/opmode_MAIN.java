@@ -144,6 +144,8 @@ public class opmode_MAIN extends LinearOpMode {
                     up.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 }
 
+
+                // Misumi Slide
                 if (gamepad2.right_stick_y > 0.1) {
                     //use velocity mode to move so it doesn't we all funky with the smoothing of position mode
                     out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -164,6 +166,7 @@ public class opmode_MAIN extends LinearOpMode {
                     out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 }
 
+
                 //make sure the upper and lower limits are actually at the upper and lower limits
                 if (up.getCurrentPosition() < 0) {
                     up.setTargetPosition(0);
@@ -183,7 +186,8 @@ public class opmode_MAIN extends LinearOpMode {
                     servo_intake.setPower(0);
                 }
 
-                //servo outtake control
+
+                //Countinous servo outtake control
                 if (gamepad2.left_trigger > 0.8/* && servo_CLAW_position < 1000000000*/) { //NO LONGER NEEDED: find a better solution for this limits so we can actually use them
                     servo_outtake.setPower(1);
                 } else if (gamepad2.left_bumper) { //NO LONGER NEEDED: these limits too.
