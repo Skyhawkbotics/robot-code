@@ -36,7 +36,7 @@ public class Right_Auto extends LinearOpMode { // extends means inherits from li
 
     // We need to create classes for each definition of hardware that isn't part of our drivetrain (I think this is for organization)
     // Here we make 6 classes, one for viper slide and one for misumi slide, and their claws and wrists and that one sensor (I'm too scared to combine them)
-    public class Elevator {
+     /* public class Elevator {
         private DcMotorEx up;
 
         public Elevator(HardwareMap Hardwaremap) {
@@ -106,7 +106,8 @@ public class Right_Auto extends LinearOpMode { // extends means inherits from li
     }
 
     public Action elevator_down_move() {
-        return new Elevator_Down_Move();
+
+         return new Elevator_Down_Move();
     }
 
     /*   public class Induction {
@@ -121,6 +122,7 @@ public class Right_Auto extends LinearOpMode { // extends means inherits from li
        }
 
      */
+    /*
     public class Elevator_claw {
         private CRServo servo_outtake;
 
@@ -153,6 +155,7 @@ public class Right_Auto extends LinearOpMode { // extends means inherits from li
     }
     // Class Action to Move viper slide elevator
     // Implements inherits action into Elevator_Up_Move --- more stuff we can do i think
+    */
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -160,14 +163,15 @@ public class Right_Auto extends LinearOpMode { // extends means inherits from li
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
 
         // make a Claw instance
-        Elevator elevator = new Elevator(hardwareMap);
+        // Elevator elevator = new Elevator(hardwareMap);
         // make a Lift instance
-        Elevator_claw elevator_claw = new Elevator_claw(hardwareMap);
+        // Elevator_claw elevator_claw = new Elevator_claw(hardwareMap);
 
         int visionOutputPosition = 1;
 
         // actionBuilder builds from the drive steps passed to it
         TrajectoryActionBuilder tab1 = drive.actionBuilder(initialPose)
+
                 .lineToYSplineHeading(33, Math.toRadians(0))
                 .waitSeconds(2)
                 .setTangent(Math.toRadians(90))
@@ -181,6 +185,13 @@ public class Right_Auto extends LinearOpMode { // extends means inherits from li
         Action trajectoryActionCloseOut = tab1.endTrajectory().fresh()
                 .strafeTo(new Vector2d(48, 12))
                 .build();
+
+
+        waitForStart();
+
+        if(isStopRequested()) return;
+
+
 
         // actions that need to happen on init; for instance, a claw tightening.
         while (!isStopRequested() && !opModeIsActive()) {
@@ -198,9 +209,6 @@ public class Right_Auto extends LinearOpMode { // extends means inherits from li
         Actions.runBlocking(
                 new SequentialAction(
                         trajectoryActionChosen,
-                        elevator.Elevator_Up_Move(),
-                        elevator_claw.Elevator_Claw_Move(),
-                        elevator.Elevator_Down_Move(),
                         trajectoryActionCloseOut
                 )
         );

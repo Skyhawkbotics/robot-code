@@ -52,8 +52,8 @@ public class opmode_MAIN extends LinearOpMode {
     //vars for set positions for transfer:
     ///TODO: CHANGE THESE
     int transfer_step = 0;
-    double intake_wrist_pos_transfer = 10;
-    double outrake_wrist_pos_transfer = 200;
+    double intake_wrist_pos_transfer = -100;
+    double outrake_wrist_pos_transfer = 100;
     double out_pos_transfer = 30;
     double up_pos_transfer1 = 20;
     double up_pos_transfer2 = 10;
@@ -194,8 +194,10 @@ public class opmode_MAIN extends LinearOpMode {
                 // manual outtake wrist location
                 if (gamepad2.dpad_up) {
                     servo_outtake_wrist_location += 0.05;
+                    servo_outtake_wrist.setPosition(servo_outtake_wrist_location);
                 } if (gamepad2.dpad_down) {
                     servo_outtake_wrist_location -= 0.05;
+                    servo_outtake_wrist.setPosition(servo_outtake_wrist_location);
                 }
                 servo_outtake_wrist.setPosition(servo_outtake_wrist_location);
 
@@ -209,10 +211,17 @@ public class opmode_MAIN extends LinearOpMode {
 
                 //SIMPLE TRANSFER BUTTON (turns on both servos at once)
                 if (gamepad2.a) {
-                    servo_outtake.setPower(1);//TODO: CHANGE THIS IF ITS WRONG
-                    servo_intake.setPower(-1);//TODO: CHANGE THIS IF ITS WRONG // got it trev
+                    servo_outtake_wrist_location -= 0.05;
+                    servo_intake_wrist_location -= 0.05;
+                    servo_outtake_wrist.setp
+                    telemetry.addData("calibrate servo intake wrist location", servo_intake_wrist_location);
+                    telemetry.addData("servo outtake wrist ", servo_outtake_wrist_location);
                 }
 
+                if(gamepad2.x) {
+                    servo_intake.setPower(1);
+                    servo_outtake.setPower(-1);
+                }
                 //SIMPLE TRANSFER SETUP BUTTON (sets wrists to the right value)
                 if (gamepad2.b) {
                     servo_intake_wrist_location = intake_wrist_pos_transfer; //TODO: CHANGE THIS VAR ABOVE!
@@ -220,7 +229,7 @@ public class opmode_MAIN extends LinearOpMode {
                 }
 
                 //MACROS
-
+/*
                 //auto-transfer
                 if (gamepad2.y) {
                     if (transfer_step == 0) { //get in position
@@ -307,8 +316,7 @@ public class opmode_MAIN extends LinearOpMode {
                 } else { //reset so it will work again
                     transfer_step = 0;
                 }
-
-
+*/
                 //telemetry stuff (prints stuff on the telemetry (driver hub))
                 telemetry.addData("x", drive.pose.position.x);
                 telemetry.addData("y", drive.pose.position.y);
