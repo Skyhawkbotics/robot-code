@@ -42,6 +42,7 @@ public class opmode_MAIN extends LinearOpMode {
     double servo_CLAW_power = 0.0;
     double manualOutControl = 0;
     int up_true_target_pos;
+    int up_location = 0;
     int out_true_target_pos;
     double servo_outtake_wrist_location = 0;
     double servo_intake_wrist_location = 0;
@@ -55,7 +56,7 @@ public class opmode_MAIN extends LinearOpMode {
     double intake_wrist_pos_transfer = 0.1;
     double outtake_wrist_pos_transfer = 0.2;
     double out_pos_transfer = 30;
-    double up_pos_transfer1 = 20;
+    int up_pos_transfer1 = 300;
     double up_pos_transfer2 = 10;
     double up_pos_transfer3 = 20;
     double outtake_wrist_pos_ready = 300;
@@ -224,12 +225,14 @@ public class opmode_MAIN extends LinearOpMode {
 
                 //SIMPLE TRANSFER BUTTON (turns on both servos at once)
                 if (gamepad2.a) {
-                    servo_outtake.setPower(1);//TODO: CHANGE THIS IF ITS WRONG
-                    servo_intake.setPower(-1);//TODO: CHANGE THIS IF ITS WRONG // got it trev
+                    servo_outtake.setPower(-1);//TODO: CHANGE THIS IF ITS WRONG
+                    servo_intake.setPower(1);//TODO: CHANGE THIS IF ITS WRONG // got it trev
                 }
 
                 //SIMPLE TRANSFER SETUP BUTTON (sets wrists to the right value)
                 if (gamepad2.b) {
+                    //Add a variable and thing for setting the viper slide position to about 250 to avoid smashing stuff together
+                    up.setTargetPosition(up_pos_transfer1);
                     servo_intake_wrist_location = intake_wrist_pos_transfer; //TODO: CHANGE THIS VAR ABOVE!
                     servo_outtake_wrist_location = outtake_wrist_pos_transfer; //TODO: CHANGE THIS VAR ABOVE!
                 }
