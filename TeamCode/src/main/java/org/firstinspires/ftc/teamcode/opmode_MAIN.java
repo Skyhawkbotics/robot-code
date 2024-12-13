@@ -38,7 +38,7 @@ public class opmode_MAIN extends LinearOpMode {
     private TouchSensor up_zero;
     private TouchSensor out_zero;
     private TouchSensor out_transfer;
-    int arm_upper_lim = 6000;
+    int arm_upper_lim = 4350;
     double servo_CLAW_power = 0.0;
     double manualOutControl = 0;
     int up_true_target_pos;
@@ -69,25 +69,25 @@ public class opmode_MAIN extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-        
 
-            //setup arm to use velocity
-            up = hardwareMap.get(DcMotorEx.class, "up");
-            up.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            up.setDirection(DcMotorSimple.Direction.REVERSE);
 
-            //example position setup
-            out = hardwareMap.get(DcMotorEx.class, "out");
-            out.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            out.setDirection(DcMotorSimple.Direction.REVERSE);
+        //setup arm to use velocity
+        up = hardwareMap.get(DcMotorEx.class, "up");
+        up.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        up.setDirection(DcMotorSimple.Direction.REVERSE);
 
-            //example velocity setup
-            //up = hardwareMap.get(DcMotorEx.class, "up");
-            //up.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            //up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            //up.setDirection(DcMotorSimple.Direction.REVERSE);
+        //example position setup
+        out = hardwareMap.get(DcMotorEx.class, "out");
+        out.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        out.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        //example velocity setup
+        //up = hardwareMap.get(DcMotorEx.class, "up");
+        //up.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //up.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //setup servos for intake and outtake
         servo_intake = hardwareMap.get(CRServo.class, "intake");
@@ -123,7 +123,7 @@ public class opmode_MAIN extends LinearOpMode {
                 drive.updatePoseEstimate();
 
                 //arm code
-                if (gamepad2.left_stick_y < -0.1) { //left stick -, is going up!
+                if (gamepad2.left_stick_y < -0.1/* && up.getCurrentPosition() < arm_upper_lim*/) { //left stick -, is going up!
                     //use velocity mode to move so it doesn't we all funky with the smoothing of position mode
                     up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                     up.setVelocity(gamepad2.left_stick_y * -1200);
@@ -142,7 +142,7 @@ public class opmode_MAIN extends LinearOpMode {
                     }
                     up.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 }
-
+                //Misumi slide out controls
                 if (gamepad2.right_stick_y > 0.1) {
                     //use velocity mode to move so it doesn't we all funky with the smoothing of position mode
                     out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -168,6 +168,7 @@ public class opmode_MAIN extends LinearOpMode {
                     up.setTargetPosition(0);
                 } else if (up.getCurrentPosition() > arm_upper_lim) {
                     up.setTargetPosition(arm_upper_lim);
+                    telemetry.addData("upper limit reached",arm_upper_lim);
                 }
 
 
