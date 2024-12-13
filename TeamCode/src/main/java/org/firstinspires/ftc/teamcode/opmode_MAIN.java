@@ -53,7 +53,7 @@ public class opmode_MAIN extends LinearOpMode {
     ///TODO: CHANGE THESE
     int transfer_step = 0;
     double intake_wrist_pos_transfer = 0.1;
-    double outrake_wrist_pos_transfer = 0.2;
+    double outtake_wrist_pos_transfer = 0.2;
     double out_pos_transfer = 30;
     double up_pos_transfer1 = 20;
     double up_pos_transfer2 = 10;
@@ -232,7 +232,7 @@ public class opmode_MAIN extends LinearOpMode {
                 //SIMPLE TRANSFER SETUP BUTTON (sets wrists to the right value)
                 if (gamepad2.b) {
                     servo_intake_wrist_location = intake_wrist_pos_transfer; //TODO: CHANGE THIS VAR ABOVE!
-                    servo_outtake_wrist_location = outrake_wrist_pos_transfer; //TODO: CHANGE THIS VAR ABOVE!
+                    servo_outtake_wrist_location = outtake_wrist_pos_transfer; //TODO: CHANGE THIS VAR ABOVE!
                 }
 
                 //MACROS
@@ -266,7 +266,7 @@ public class opmode_MAIN extends LinearOpMode {
                             up.setTargetPosition(up.getCurrentPosition());
                             up.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                         }
-                        servo_outtake_wrist.setPosition(outrake_wrist_pos_transfer);
+                        servo_outtake_wrist.setPosition(outtake_wrist_pos_transfer);
                     } else if (transfer_step == 1) { //put claws in positiion
                         //viper slide back down a bit, can't go to this pos at start because when rotating claw would bump into sample in other claw!
                         if (up.getCurrentPosition() > up_pos_transfer2) {
