@@ -15,8 +15,6 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.HardwareDeviceCloseOnTearDown;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -39,10 +37,7 @@ public class opmode_MAIN extends LinearOpMode {
     private TouchSensor out_zero;
     private TouchSensor out_transfer;
     int arm_upper_lim = 4350;
-    double servo_CLAW_power = 0.0;
-    double manualOutControl = 0;
     int up_true_target_pos;
-    int up_location = 0;
     int out_true_target_pos;
     double servo_outtake_wrist_location = 0;
     double servo_intake_wrist_location = 0;
@@ -51,7 +46,7 @@ public class opmode_MAIN extends LinearOpMode {
 
 
     //vars for set positions for transfer:
-    ///TODO: CHANGE THESE
+    ///DONE FOR NOW (do when we try full auto transfer: CHANGE THESE
     int transfer_step = 0;
     double intake_wrist_pos_transfer = 0.1;
     double outtake_wrist_pos_transfer = 0.2;
@@ -229,16 +224,16 @@ public class opmode_MAIN extends LinearOpMode {
 
                 //SIMPLE TRANSFER BUTTON (turns on both servos at once)
                 if (gamepad2.a) {
-                    servo_outtake.setPower(-1);//TODO: CHANGE THIS IF ITS WRONG
-                    servo_intake.setPower(1);//TODO: CHANGE THIS IF ITS WRONG // got it trev
+                    servo_outtake.setPower(-1);
+                    servo_intake.setPower(1);
                 }
 
                 //SIMPLE TRANSFER SETUP BUTTON (sets wrists to the right value)
                 if (gamepad2.b) {
                     //Add a variable and thing for setting the viper slide position to about 250 to avoid smashing stuff together
                     up.setTargetPosition(up_pos_transfer1);
-                    servo_intake_wrist_location = intake_wrist_pos_transfer; //TODO: CHANGE THIS VAR ABOVE!
-                    servo_outtake_wrist_location = outtake_wrist_pos_transfer; //TODO: CHANGE THIS VAR ABOVE!
+                    servo_intake_wrist_location = intake_wrist_pos_transfer;
+                    servo_outtake_wrist_location = outtake_wrist_pos_transfer;
                 }
 
                 //MACROS
