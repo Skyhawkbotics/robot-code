@@ -197,6 +197,13 @@ public class opmode_MAIN extends LinearOpMode {
                 } if (gamepad2.dpad_down) {
                     servo_outtake_wrist_location -= 0.05;
                 }
+
+                if (servo_outtake_wrist_location > 1) {
+                    servo_outtake_wrist_location = 1;
+                } else if (servo_outtake_wrist_location < 0) {
+                    servo_outtake_wrist_location = 0;
+                }
+
                 servo_outtake_wrist.setPosition(servo_outtake_wrist_location);
 
                 // manual intake wrist location
@@ -205,7 +212,15 @@ public class opmode_MAIN extends LinearOpMode {
                 } if (gamepad2.dpad_left) {
                     servo_intake_wrist_location -= 0.05;
                 }
+
+                if (servo_intake_wrist_location > 1) {
+                    servo_intake_wrist_location = 1;
+                } else if (servo_intake_wrist_location < 0) {
+                    servo_intake_wrist_location = 0;
+                }
+
                 servo_intake_wrist.setPosition(servo_intake_wrist_location);
+
 
                 //SIMPLE TRANSFER BUTTON (turns on both servos at once)
                 if (gamepad2.a) {
