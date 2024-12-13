@@ -38,10 +38,11 @@ public class opmode_MAIN extends LinearOpMode {
     private TouchSensor up_zero;
     private TouchSensor out_zero;
     private TouchSensor out_transfer;
-    int arm_upper_lim = 6000;
+    int arm_upper_lim = 4350;
     double servo_CLAW_power = 0.0;
     double manualOutControl = 0;
     int up_true_target_pos;
+    int up_location = 0;
     int out_true_target_pos;
     double servo_outtake_wrist_location = 0;
     double servo_intake_wrist_location = 0;
@@ -52,10 +53,10 @@ public class opmode_MAIN extends LinearOpMode {
     //vars for set positions for transfer:
     ///TODO: CHANGE THESE
     int transfer_step = 0;
-    double intake_wrist_pos_transfer = -100;
-    double outrake_wrist_pos_transfer = 100;
+    double intake_wrist_pos_transfer = 0.1;
+    double outtake_wrist_pos_transfer = 0.2;
     double out_pos_transfer = 30;
-    double up_pos_transfer1 = 20;
+    int up_pos_transfer1 = 300;
     double up_pos_transfer2 = 10;
     double up_pos_transfer3 = 20;
     double outtake_wrist_pos_ready = 300;
@@ -194,11 +195,16 @@ public class opmode_MAIN extends LinearOpMode {
                 // manual outtake wrist location
                 if (gamepad2.dpad_up) {
                     servo_outtake_wrist_location += 0.05;
-                    servo_outtake_wrist.setPosition(servo_outtake_wrist_location);
                 } if (gamepad2.dpad_down) {
                     servo_outtake_wrist_location -= 0.05;
-                    servo_outtake_wrist.setPosition(servo_outtake_wrist_location);
                 }
+
+                if (servo_outtake_wrist_location > 1) {
+                    servo_outtake_wrist_location = 1;
+                } else if (servo_outtake_wrist_location < 0) {
+                    servo_outtake_wrist_location = 0;
+                }
+
                 servo_outtake_wrist.setPosition(servo_outtake_wrist_location);
 
                 // manual intake wrist location
@@ -207,29 +213,32 @@ public class opmode_MAIN extends LinearOpMode {
                 } if (gamepad2.dpad_left) {
                     servo_intake_wrist_location -= 0.05;
                 }
+
+                if (servo_intake_wrist_location > 1) {
+                    servo_intake_wrist_location = 1;
+                } else if (servo_intake_wrist_location < 0) {
+                    servo_intake_wrist_location = 0;
+                }
+
                 servo_intake_wrist.setPosition(servo_intake_wrist_location);
+
 
                 //SIMPLE TRANSFER BUTTON (turns on both servos at once)
                 if (gamepad2.a) {
-                    servo_outtake_wrist_location -= 0.05;
-                    servo_intake_wrist_location -= 0.05;
-                    servo_outtake_wrist.setp
-                    telemetry.addData("calibrate servo intake wrist location", servo_intake_wrist_location);
-                    telemetry.addData("servo outtake wrist ", servo_outtake_wrist_location);
+                    servo_outtake.setPower(-1);//TODO: CHANGE THIS IF ITS WRONG
+                    servo_intake.setPower(1);//TODO: CHANGE THIS IF ITS WRONG // got it trev
                 }
 
-                if(gamepad2.x) {
-                    servo_intake.setPower(1);
-                    servo_outtake.setPower(-1);
-                }
                 //SIMPLE TRANSFER SETUP BUTTON (sets wrists to the right value)
                 if (gamepad2.b) {
+                    //Add a variable and thing for setting the viper slide position to about 250 to avoid smashing stuff together
+                    up.setTargetPosition(up_pos_transfer1);
                     servo_intake_wrist_location = intake_wrist_pos_transfer; //TODO: CHANGE THIS VAR ABOVE!
-                    servo_outtake_wrist_location = outrake_wrist_pos_transfer; //TODO: CHANGE THIS VAR ABOVE!
+                    servo_outtake_wrist_location = outtake_wrist_pos_transfer; //TODO: CHANGE THIS VAR ABOVE!
                 }
 
                 //MACROS
-/*
+
                 //auto-transfer
                 if (gamepad2.y) {
                     if (transfer_step == 0) { //get in position
@@ -259,7 +268,7 @@ public class opmode_MAIN extends LinearOpMode {
                             up.setTargetPosition(up.getCurrentPosition());
                             up.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                         }
-                        servo_outtake_wrist.setPosition(outrake_wrist_pos_transfer);
+                        servo_outtake_wrist.setPosition(outtake_wrist_pos_transfer);
                     } else if (transfer_step == 1) { //put claws in positiion
                         //viper slide back down a bit, can't go to this pos at start because when rotating claw would bump into sample in other claw!
                         if (up.getCurrentPosition() > up_pos_transfer2) {
@@ -316,7 +325,8 @@ public class opmode_MAIN extends LinearOpMode {
                 } else { //reset so it will work again
                     transfer_step = 0;
                 }
-*/
+
+
                 //telemetry stuff (prints stuff on the telemetry (driver hub))
                 telemetry.addData("x", drive.pose.position.x);
                 telemetry.addData("y", drive.pose.position.y);
