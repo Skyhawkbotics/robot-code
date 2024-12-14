@@ -41,7 +41,7 @@ public class Right_Auto extends LinearOpMode { // extends means inherits from li
         private DcMotorEx up;
 
         public Elevator(HardwareMap Hardwaremap) {
-            up = hardwareMap.get(DcMotorEx.class, "elevator");
+            up = hardwareMap.get(DcMotorEx.class, "up");
             up.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             up.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -135,9 +135,6 @@ public class Right_Auto extends LinearOpMode { // extends means inherits from li
         public Elevator_claw(HardwareMap hardwaremap) {
             servo_outtake = hardwareMap.get(CRServo.class, "outtake");
         }
-        public Action elevator_claw_move() {
-            return new Elevator_Claw_Move();
-        }
 
 
         // Class Action to Move viper slide elevator
@@ -151,6 +148,9 @@ public class Right_Auto extends LinearOpMode { // extends means inherits from li
                 return false; // why do i need to RETURN (ask allan)
             }
         }
+        public Action elevator_Claw_Move() {
+            return new Elevator_Claw_Move();
+        }
     }
 
 
@@ -160,37 +160,26 @@ public class Right_Auto extends LinearOpMode { // extends means inherits from li
 
     @Override
     public void runOpMode() throws InterruptedException {
-        Pose2d initialPose = new Pose2d(11.8, 61.7, Math.toRadians(90));
+        Pose2d initialPose = new Pose2d(0, 0, Math.toRadians(90));
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
 
         // make a Claw instance
-        Elevator elevator = new Elevator(hardwareMap);
+        Elevator up = new Elevator(hardwareMap);
         // make a Lift instance
-        Elevator_claw elevator_claw = new Elevator_claw(hardwareMap);
+        Elevator_claw servo_outtake = new Elevator_claw(hardwareMap);
 
 
         // actionBuilder builds from the drive steps passed to it
-        TrajectoryActionBuilder tab1 = drive.actionBuilder(initialPose)
+        TrajectoryActionBuilder rightCorner = drive.actionBuilder(initialPose)
+                .lineToX(10)
+                .afterTime(2, up.elevator_up_move())
+                        .lineToX(2)
+                                .afterTime(2, up.elevator_down_move());
 
-                .lineToYSplineHeading(33, Math.toRadians(0))
-                .waitSeconds(2)
-                .lineToY(48)
-                .waitSeconds(2)
-                .lineToXConstantHeading(23)
-                .waitSeconds(2)
-                .setTangent(Math.toRadians(0))
-                .waitSeconds(2)
-                .lineToX(32)
-                .waitSeconds(2)
-                .strafeTo(new Vector2d(44.5, 30))
-                .waitSeconds(2)
-                .turn(Math.toRadians(180))
-                .waitSeconds(2)
-                .lineToX(47.5)
-                .waitSeconds(2);
-        Action trajectoryActionCloseOut = tab1.endTrajectory().fresh()
-                .strafeTo(new Vector2d(48, 12))
-                .build();
+
+
+
+
 
 
         waitForStart();
@@ -209,13 +198,17 @@ public class Right_Auto extends LinearOpMode { // extends means inherits from li
         waitForStart();
         if (isStopRequested()) return;
         Action trajectoryActionChosen;
-        trajectoryActionChosen = tab1.build();
+        trajectoryActionChosen = rightCorner.build();
         Actions.runBlocking(
                 new SequentialAction(
                         trajectoryActionChosen,
-                        trajectoryActionCloseOut
+                        up.elevator_up_move(),
+                        new ParallelAction(
+                        up.elevator_down_move(),
+                        servo_outtake.elevator_Claw_Move()
+                        )
                 )
-        );
 
+        );
     }
 }
