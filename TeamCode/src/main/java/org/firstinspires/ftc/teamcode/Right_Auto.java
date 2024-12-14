@@ -99,7 +99,7 @@ public class Right_Auto extends LinearOpMode { // extends means inherits from li
                     return false;
                 }
                 // overall, the action powers the lift until it surpasses 300 encoder ticks? wait so its runtime then right
-                // DOESNT have to be percise! it just roughly is fine.... DRIVING tho sould be percise :skul;:
+                // DOESN'T have to be precise! it just roughly is fine.... DRIVING tho should be precise :skull:
             }
 
         }
