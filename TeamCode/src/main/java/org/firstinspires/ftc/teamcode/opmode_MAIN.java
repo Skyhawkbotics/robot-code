@@ -250,6 +250,14 @@ public class opmode_MAIN extends LinearOpMode {
                         out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                         out.setVelocity(500);
                         telemetry.addData("out_transfer is not pressed",out_transfer);
+                        out_true_target_pos = 0;
+                    } else {
+                        out.setPower(500);
+                        if (out_true_target_pos ==0) {
+                            out_true_target_pos = out.getCurrentPosition();
+                            out.setTargetPosition(out.getCurrentPosition());
+                        }
+                        out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     }
                     // maybe write code to maybe speed it up
                     // but we run into the issue of running into limits (and there are no limits so motors will be running)
