@@ -130,8 +130,10 @@ public class opmode_MAIN extends LinearOpMode {
                     up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                     up.setVelocity(gamepad2.left_stick_y * -1200);
                     up_true_target_pos = 0;
-                } else if (!up_zero.isPressed() && gamepad2.left_stick_y > 0.1) { // Lower limit for up
+                } else if (up_zero.isPressed()) { // Lower limit for up
                     telemetry.addData("Lower Limit Reached", up_zero);
+                    up.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
                 } else {
                     up.setPower(500);
                     //use positon mode to stay up, as otherwise it would fall down. do some fancy stuff with up_true_target_pos to avoid the issue of it very slightly falling every tick
