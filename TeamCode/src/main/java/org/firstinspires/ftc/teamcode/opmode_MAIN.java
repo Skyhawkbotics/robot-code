@@ -130,10 +130,9 @@ public class opmode_MAIN extends LinearOpMode {
                     up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                     up.setVelocity(gamepad2.left_stick_y * -1200);
                     up_true_target_pos = 0;
-                } else if (up_zero.isPressed()) { // Lower limit for up
+                } else if (up_zero.isPressed() && gamepad2.left_stick_y > 0.1) { // Lower limit for up
                     telemetry.addData("Lower Limit Reached", up_zero);
                     up.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
                 } else {
                     up.setPower(500);
                     //use positon mode to stay up, as otherwise it would fall down. do some fancy stuff with up_true_target_pos to avoid the issue of it very slightly falling every tick
@@ -156,9 +155,11 @@ public class opmode_MAIN extends LinearOpMode {
                     out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                     out.setVelocity(gamepad2.right_stick_y * 500);
                     out_true_target_pos = 0;
-                } else { // This is newly commented out code, this code kinda of functions like stay-upper? ; it kinda make sures the motor keeps same posotion
+                } else { // This is newly commented out code, this code kinda of functions like stay-upper? ; it kinda make sures the motor keeps same position
+                    // I thought this wasn't needed for misumi since theres no gravity unlike the viper slide. I also commented it out so I could set a run to target posotion
+                    // without possibly interfering with the misumi slide controls. If i am wrong just uncomment the code(He was wrong, it was necessary)
                    out.setPower(500);
-                    //use positon mode to stay up, as otherwise it would fall down. do some fancy stuff with up_true_target_pos to avoid the issue of it very slightly falling every tick
+                    //use position mode to stay up, as otherwise it would fall down. do some fancy stuff with up_true_target_pos to avoid the issue of it very slightly falling every tick
                     if (out_true_target_pos == 0) {
                         out.setTargetPosition(out.getCurrentPosition());
                         out_true_target_pos = out.getCurrentPosition();
@@ -242,12 +243,18 @@ public class opmode_MAIN extends LinearOpMode {
                 }
                 // Misumi slide stuff
                 if (gamepad2.y) {
-                    servo_outtake_wrist_location += 1; // moves servo out of way? change to -1 if its wrong
-                    servo_intake_wrist.setPosition(0.1);
+                    //servo_outtake_wrist_location += 1; // moves servo out of way? change to -1 if its wrong
+
+                    //servo_intake_wrist.setPosition(intake_wrist_pos_transfer);
                     if(!out_transfer.isPressed()) {
-                        out.setVelocity(-300);
-                    } else if (out_zero.isPressed()){
+                        out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                         out.setVelocity(100);
+                        telemetry.addData("out_transfer is not pressed",out_transfer);
+                    }
+                    else {
+                        out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                        out.setPower(0);
+                        telemetry.addData("out_transfer is pressed",out_transfer);
                     }
                     // maybe write code to maybe speed it up
                     // but we run into the issue of running into limits (and there are no limits so motors will be running)
