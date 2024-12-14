@@ -50,7 +50,7 @@ public class opmode_MAIN extends LinearOpMode {
     int transfer_step = 0;
     double intake_wrist_pos_transfer = 0.1;
     double outtake_wrist_pos_transfer = 0.2;
-    double out_pos_transfer = 30;
+    int out_pos_transfer = 14;
     int up_pos_transfer1 = 300;
     double up_pos_transfer2 = 10;
     double up_pos_transfer3 = 20;
@@ -157,7 +157,7 @@ public class opmode_MAIN extends LinearOpMode {
                     out_true_target_pos = 0;
                 } else if (out_zero.isPressed()) {
                     out.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                }else { // This is newly commented out code, this code kinda of functions like stay-upper? ; it kinda make sures the motor keeps same position
+                } else { // This is newly commented out code, this code kinda of functions like stay-upper? ; it kinda make sures the motor keeps same position
                     // I thought this wasn't needed for misumi since theres no gravity unlike the viper slide. I also commented it out so I could set a run to target posotion
                     // without possibly interfering with the misumi slide controls. If i am wrong just uncomment the code(He was wrong, it was necessary)
                     out.setPower(500);
@@ -168,15 +168,15 @@ public class opmode_MAIN extends LinearOpMode {
                     }
                     out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 }
-            }
 
 
-            //make sure the upper and lower limits are actually at the upper and lower limits
-            if (up.getCurrentPosition() < 0) {
-                up.setTargetPosition(0);
-            } else if (up.getCurrentPosition() > arm_upper_lim) {
-                up.setTargetPosition(arm_upper_lim);
-            }
+
+                //make sure the upper and lower limits are actually at the upper and lower limits
+                if (up.getCurrentPosition() < 0) {
+                    up.setTargetPosition(0);
+                } else if (up.getCurrentPosition() > arm_upper_lim) {
+                    up.setTargetPosition(arm_upper_lim);
+                }
 
 
 
@@ -241,11 +241,12 @@ public class opmode_MAIN extends LinearOpMode {
                 if (gamepad2.b) {
                     //Add a variable and thing for setting the viper slide position to about 250 to avoid smashing stuff together
                     up.setTargetPosition(up_pos_transfer1);
+                    out.setTargetPosition(out_pos_transfer);
                     servo_intake_wrist_location = intake_wrist_pos_transfer;
                     servo_outtake_wrist_location = outtake_wrist_pos_transfer;
                 }
                 // Misumi slide stuff
-                if (gamepad2.y) {
+                /*if (gamepad2.y) {
                     //servo_outtake_wrist_location += 1; // moves servo out of way? change to -1 if its wrong
 
                     //servo_intake_wrist.setPosition(intake_wrist_pos_transfer);
@@ -266,7 +267,7 @@ public class opmode_MAIN extends LinearOpMode {
                     // but we run into the issue of running into limits (and there are no limits so motors will be running)
                     // and also the fact that sensor might not pick up cuz its too fast
 
-                }
+                }*/
                 // manual macro steps
                 // first press y ; misumi slide
                 // then b ; servo wrist adjust
