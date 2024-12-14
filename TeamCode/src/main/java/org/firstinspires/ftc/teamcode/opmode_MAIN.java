@@ -50,7 +50,7 @@ public class opmode_MAIN extends LinearOpMode {
     int transfer_step = 0;
     double intake_wrist_pos_transfer = 0.1;
     double outtake_wrist_pos_transfer = 0.2;
-    int out_pos_transfer = 30;
+    int out_pos_transfer = 30;//TODO: edit this for calibration!
     int up_pos_transfer1 = 300;
     double up_pos_transfer2 = 10;
     double up_pos_transfer3 = 20;
