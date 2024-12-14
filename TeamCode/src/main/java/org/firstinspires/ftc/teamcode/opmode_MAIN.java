@@ -155,15 +155,13 @@ public class opmode_MAIN extends LinearOpMode {
                     out.setVelocity(gamepad2.right_stick_y * 500);
                     out_true_target_pos = 0;
                 } else { // This is newly commented out code, this code kinda of functions like stay-upper? ; it kinda make sures the motor keeps same posotion
-                    // I thought this wasn't needed for misumi since theres no gravity unlike the viper slide. I also commented it out so I could set a run to target posotion
-                    // without possibliy interferring with the misumi slide controls. If i am wrong just uncomment the code
                    out.setPower(500);
                     //use positon mode to stay up, as otherwise it would fall down. do some fancy stuff with up_true_target_pos to avoid the issue of it very slightly falling every tick
-                   // if (out_true_target_pos == 0) {
-                  //      out.setTargetPosition(out.getCurrentPosition());
-                  //      out_true_target_pos = out.getCurrentPosition();
-                   // }
-                   // out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    if (out_true_target_pos == 0) {
+                        out.setTargetPosition(out.getCurrentPosition());
+                        out_true_target_pos = out.getCurrentPosition();
+                    }
+                    out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 }
 
 
@@ -244,8 +242,10 @@ public class opmode_MAIN extends LinearOpMode {
                 if (gamepad2.y) {
                     servo_outtake_wrist_location += 1; // moves servo out of way? change to -1 if its wrong
                     servo_intake_wrist.setPosition(0.1);
-                    while(!out_transfer.isPressed()) {
+                    if(!out_transfer.isPressed()) {
                         out.setVelocity(-300);
+                    } else if (out_zero.isPressed()){
+                        out.setVelocity(100);
                     }
                     // maybe write code to maybe speed it up
                     // but we run into the issue of running into limits (and there are no limits so motors will be running)
