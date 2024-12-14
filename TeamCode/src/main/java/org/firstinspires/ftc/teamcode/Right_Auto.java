@@ -37,7 +37,7 @@ public class Right_Auto extends LinearOpMode { // extends means inherits from li
 
     // We need to create classes for each definition of hardware that isn't part of our drivetrain (I think this is for organization)
     // Here we make 6 classes, one for viper slide and one for misumi slide, and their claws and wrists and that one sensor (I'm too scared to combine them)
-      public class Elevator { // We made nested classes, First class is Elevator with all the methods that involve elevator
+    public class Elevator { // We made nested classes, First class is Elevator with all the methods that involve elevator
         private DcMotorEx up;
 
         public Elevator(HardwareMap Hardwaremap) {
@@ -168,12 +168,8 @@ public class Right_Auto extends LinearOpMode { // extends means inherits from li
 
 
         // actionBuilder builds from the drive steps passed to it
-        TrajectoryActionBuilder rightCorner = drive.actionBuilder(initialPose)
-                .lineToX(10)
-                .afterTime(2, up.elevator_up_move())
-                        .lineToX(2)
-                                .afterTime(2, up.elevator_down_move());
-
+        TrajectoryActionBuilder rightCorner = drive.actionBuilder(/*start position*/new Pose2d(0.0, 0.0, 0.0)) // tells the robot where it's going to start?
+                .strafeTo(new Vector2d(10,10));
 
 
 
@@ -195,15 +191,11 @@ public class Right_Auto extends LinearOpMode { // extends means inherits from li
         telemetry.update();
         waitForStart();
         if (isStopRequested()) return;
-        Action trajectoryActionChosen;
-        trajectoryActionChosen = rightCorner.build();
+        Action rightCornerbuild;
+        rightCornerbuild = rightCorner.build();
         Actions.runBlocking(
                 new SequentialAction(
-                        trajectoryActionChosen,
-                        up.elevator_up_move(),
-                        new ParallelAction(
-                        up.elevator_down_move()
-                        )
+                        rightCornerbuild
                 )
 
         );
