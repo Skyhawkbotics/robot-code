@@ -246,15 +246,10 @@ public class opmode_MAIN extends LinearOpMode {
                     //servo_outtake_wrist_location += 1; // moves servo out of way? change to -1 if its wrong
 
                     //servo_intake_wrist.setPosition(intake_wrist_pos_transfer);
-                    if(!out_transfer.isPressed()) {
+                    if(!out_transfer.isPressed() && !out_zero.isPressed()) {
                         out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                        out.setVelocity(100);
+                        out.setVelocity(500);
                         telemetry.addData("out_transfer is not pressed",out_transfer);
-                    }
-                    else {
-                        out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                        out.setPower(0);
-                        telemetry.addData("out_transfer is pressed",out_transfer);
                     }
                     // maybe write code to maybe speed it up
                     // but we run into the issue of running into limits (and there are no limits so motors will be running)
@@ -371,6 +366,8 @@ public class opmode_MAIN extends LinearOpMode {
                 telemetry.addData("intake_wrist_current_pos", servo_intake_wrist_location);
                 telemetry.addData("outtake_wrist_current_pos", servo_outtake_wrist_location);
                 telemetry.addData("gamepad2.left_stick_y", gamepad2.left_stick_y);
+                telemetry.addData("out_transfer", out_transfer.isPressed());
+                telemetry.addData("out_zero", out_zero.isPressed());
 
 
 
