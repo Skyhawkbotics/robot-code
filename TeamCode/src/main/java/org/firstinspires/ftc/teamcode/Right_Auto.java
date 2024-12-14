@@ -99,7 +99,7 @@ public class Right_Auto extends LinearOpMode { // extends means inherits from li
                     return false;
                 }
                 // overall, the action powers the lift until it surpasses 300 encoder ticks? wait so its runtime then right
-                // DOESNT have to be percise! it just roughly is fine.... DRIVING tho sould be percise :skul;:
+                // DOESN'T have to be precise! it just roughly is fine.... DRIVING tho should be precise :skull:
             }
 
         }
@@ -143,8 +143,6 @@ public class Right_Auto extends LinearOpMode { // extends means inherits from li
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 servo_outtake.setPower(-1);
-                sleep(1000);
-                servo_outtake.setPower(0);
                 return false; // why do i need to RETURN (ask allan)
             }
         }
@@ -204,8 +202,7 @@ public class Right_Auto extends LinearOpMode { // extends means inherits from li
                         trajectoryActionChosen,
                         up.elevator_up_move(),
                         new ParallelAction(
-                        up.elevator_down_move(),
-                        servo_outtake.elevator_Claw_Move()
+                        up.elevator_down_move()
                         )
                 )
 
