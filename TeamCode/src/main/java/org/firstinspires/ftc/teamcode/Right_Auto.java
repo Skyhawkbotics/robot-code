@@ -38,7 +38,7 @@ public class Right_Auto extends LinearOpMode { // extends means inherits from li
     // We need to create classes for each definition of hardware that isn't part of our drivetrain (I think this is for organization)
     // Here we make 6 classes, one for viper slide and one for misumi slide, and their claws and wrists and that one sensor (I'm too scared to combine them)
     public class Elevator { // We made nested classes, First class is Elevator with all the methods that involve elevator
-        private DcMotorEx up;
+        private final DcMotorEx up;
 
         public Elevator(HardwareMap Hardwaremap) {
             up = hardwareMap.get(DcMotorEx.class, "up");

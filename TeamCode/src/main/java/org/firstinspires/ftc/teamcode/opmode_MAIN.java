@@ -26,16 +26,6 @@ import org.firstinspires.ftc.teamcode.tuning.TuningOpModes;
 @TeleOp(name="MAIN_opmode")
 public class opmode_MAIN extends LinearOpMode {
 
-    //setup arm variable
-    private DcMotorEx up;
-    private DcMotorEx out;
-    private CRServo servo_outtake;
-    private CRServo servo_intake;
-    private Servo servo_intake_wrist;
-    private Servo servo_outtake_wrist;
-    private TouchSensor up_zero;
-    private TouchSensor out_zero;
-    private TouchSensor out_transfer;
     int arm_upper_lim = 4350;
     int up_true_target_pos;
     int out_true_target_pos;
@@ -45,19 +35,19 @@ public class opmode_MAIN extends LinearOpMode {
 
     //vars for set positions for transfer:
     /// DONE FOR NOW (do when we try full auto transfer: CHANGE THESE
-    int transfer_step = 0;
+    // int transfer_step = 0;
     double intake_wrist_pos_transfer = 0.1;
     double outtake_wrist_pos_transfer = 0.2;
     int out_pos_transfer = 30;//TODO: edit this for calibration!
     int up_pos_transfer1 = 300;
-    double up_pos_transfer2 = 10;
-    double up_pos_transfer3 = 20;
-    double outtake_wrist_pos_ready = 300;
+    // double up_pos_transfer2 = 10;
+    // double up_pos_transfer3 = 20;
+    // double outtake_wrist_pos_ready = 300;
 
 
     //time stuff
     double last_time = 0;
-    private ElapsedTime runtime = new ElapsedTime();
+    private final ElapsedTime runtime = new ElapsedTime();
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -65,13 +55,14 @@ public class opmode_MAIN extends LinearOpMode {
 
 
         //setup arm to use velocity
-        up = hardwareMap.get(DcMotorEx.class, "up");
+        //setup arm variable
+        DcMotorEx up = hardwareMap.get(DcMotorEx.class, "up");
         up.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         up.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //example position setup
-        out = hardwareMap.get(DcMotorEx.class, "out");
+        DcMotorEx out = hardwareMap.get(DcMotorEx.class, "out");
         out.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         out.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -83,16 +74,16 @@ public class opmode_MAIN extends LinearOpMode {
         //up.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //setup servos for intake and outtake
-        servo_intake = hardwareMap.get(CRServo.class, "intake");
-        servo_outtake = hardwareMap.get(CRServo.class, "outtake");
-        servo_intake_wrist = hardwareMap.get(Servo.class, "intakeWrist");
-        servo_outtake_wrist = hardwareMap.get(Servo.class, "outtakeWrist");
+        CRServo servo_intake = hardwareMap.get(CRServo.class, "intake");
+        CRServo servo_outtake = hardwareMap.get(CRServo.class, "outtake");
+        Servo servo_intake_wrist = hardwareMap.get(Servo.class, "intakeWrist");
+        Servo servo_outtake_wrist = hardwareMap.get(Servo.class, "outtakeWrist");
 
 
-        //initilize touch sensor
-        up_zero = hardwareMap.get(TouchSensor.class, "up_zero");
-        out_zero = hardwareMap.get(TouchSensor.class, "out_zero");
-        out_transfer = hardwareMap.get(TouchSensor.class, "out_transfer");
+        //initialize touch sensor
+        TouchSensor up_zero = hardwareMap.get(TouchSensor.class, "up_zero");
+        TouchSensor out_zero = hardwareMap.get(TouchSensor.class, "out_zero");
+        TouchSensor out_transfer = hardwareMap.get(TouchSensor.class, "out_transfer");
 
 
         if (TuningOpModes.DRIVE_CLASS.equals(MecanumDrive.class)) {
@@ -129,7 +120,7 @@ public class opmode_MAIN extends LinearOpMode {
                     up.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 } else {
                     up.setPower(500);
-                    //use positon mode to stay up, as otherwise it would fall down. do some fancy stuff with up_true_target_pos to avoid the issue of it very slightly falling every tick
+                    //use position mode to stay up, as otherwise it would fall down. do some fancy stuff with up_true_target_pos to avoid the issue of it very slightly falling every tick
                     if (up_true_target_pos == 0) {
                         up.setTargetPosition(up.getCurrentPosition());
                         up_true_target_pos = up.getCurrentPosition();
@@ -170,7 +161,7 @@ public class opmode_MAIN extends LinearOpMode {
                 }
 
 
-                // Gamepad2.right_trigger is analog, so we need a compatative statment to use it as a digital button.
+                // Gamepad2.right_trigger is analog, so we need a comparative statement to use it as a digital button.
                 //servo intake control
                 if (gamepad2.right_trigger > 0.8/* && servo_CLAW_position < 1000000000*/) { //NO LONGER NEEDED: find a better solution for this limits so we can actually use them
                     servo_intake.setPower(1);
@@ -181,7 +172,7 @@ public class opmode_MAIN extends LinearOpMode {
                 }
 
 
-                //Countinous servo outtake control
+                //Continuous servo outtake control
                 if (gamepad2.left_trigger > 0.8/* && servo_CLAW_position < 1000000000*/) { //NO LONGER NEEDED: find a better solution for this limits so we can actually use them
                     servo_outtake.setPower(1);
                 } else if (gamepad2.left_bumper) { //NO LONGER NEEDED: these limits too.
@@ -311,7 +302,7 @@ public class opmode_MAIN extends LinearOpMode {
                             up.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                         }
                         servo_outtake_wrist.setPosition(outtake_wrist_pos_transfer);
-                    } else if (transfer_step == 1) { //put claws in positiion
+                    } else if (transfer_step == 1) { //put claws in position
                         //viper slide back down a bit, can't go to this pos at start because when rotating claw would bump into sample in other claw!
                         if (up.getCurrentPosition() > up_pos_transfer2) {
                             up.setVelocity(-50);
@@ -324,7 +315,7 @@ public class opmode_MAIN extends LinearOpMode {
                             up.setTargetPosition(up.getCurrentPosition());
                             up.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                         }
-                        servo_outtake.setPower(1); //set to recieve sample
+                        servo_outtake.setPower(1); //set to receive sample
                     } else if (transfer_step == 2) { //sample into other claw
                         servo_intake.setPower(-1); //spit out the sample!
                         if (up.getCurrentPosition() > up_pos_transfer3) {
@@ -355,7 +346,7 @@ public class opmode_MAIN extends LinearOpMode {
                         servo_outtake_wrist.setPosition(outtake_wrist_pos_ready);
                     }
 *
-                    //moving on, to next step if everything is accomplished. If changing something in one of the steps, make sure to change the if statment!
+                    //moving on, to next step if everything is accomplished. If changing something in one of the steps, make sure to change the if statement!
                     if (out_transfer.isPressed() && up.getCurrentPosition() == up_pos_transfer1 && servo_intake_wrist.getPosition() == intake_wrist_pos_transfer && servo_outtake_wrist.getPosition() == out_pos_transfer && transfer_step < 1) {
                         transfer_step = 1;
                     } else if (transfer_step == 1 && up.getCurrentPosition() == up_pos_transfer2) {
