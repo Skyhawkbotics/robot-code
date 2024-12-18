@@ -38,8 +38,8 @@ public class opmode_MAIN extends LinearOpMode {
     // int transfer_step = 0;
     double intake_wrist_pos_transfer = 0.1;
     double outtake_wrist_pos_transfer = 0.2;
-    int out_pos_transfer = 30;//TODO: edit this for calibration!
-    int up_pos_transfer1 = 300;
+    int out_pos_transfer = -11;//TODO: edit this for calibration!
+    int up_pos_transfer1 = 290;
     // double up_pos_transfer2 = 10;
     // double up_pos_transfer3 = 20;
     // double outtake_wrist_pos_ready = 300;
@@ -215,63 +215,69 @@ public class opmode_MAIN extends LinearOpMode {
 
 
                 //Encoder Transfer Method
-                if (gamepad2.b) {
+                if (gamepad2.b) { // He needs to hold B down for entire thing to work
                     //Add a variable and thing for setting the viper slide position to about 250 to avoid smashing stuff together
                     up.setTargetPosition(up_pos_transfer1);
                     servo_intake_wrist_location = intake_wrist_pos_transfer;
                     out.setTargetPosition(out_pos_transfer);
                     telemetry.addData("Misumi Slide Moving", true);
                     servo_outtake_wrist_location = outtake_wrist_pos_transfer;
-                    if (servo_intake_wrist.getPosition() == intake_wrist_pos_transfer) {
-                        servo_outtake.setPower(-1);
-                        servo_intake.setPower(1);
-                        telemetry.addData("Running Servo Transfer", true);
-                    }
-
-
-                    // Magnetic Sensor Method
-                    if (gamepad2.y) {
-                        servo_intake_wrist_location = intake_wrist_pos_transfer;
-                        servo_outtake_wrist_location = outtake_wrist_pos_transfer;
-
-                        if (!out_transfer.isPressed()) {
-                            out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                            out.setVelocity(200);
-                            telemetry.addData("Out Moving", true);
-                            telemetry.addData("Out_Transfer pressed", false);
-                            out_true_target_pos = 0;
-                        } else if (out_transfer.isPressed()) {
-                            out.setVelocity(0);
-                            out_true_target_pos = out.getCurrentPosition();
-                            out.setTargetPosition(out_true_target_pos);
-                            out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    if (out.getCurrentPosition() == out_pos_transfer && up.getCurrentPosition() == up_pos_transfer1) {
+                        if(servo_outtake_wrist.getPosition() == outtake_wrist_pos_transfer && servo_intake_wrist.getPosition() == intake_wrist_pos_transfer) {
                             servo_outtake.setPower(-1);
                             servo_intake.setPower(1);
-                        } else if (out_zero.isPressed()) {
-                            out.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                            out.setVelocity(-400);
-                        } else {
-                            out.setPower(200);
-                            if (out_true_target_pos == 0) {
-                                out_true_target_pos = out.getCurrentPosition();
-                                out.setTargetPosition(out.getCurrentPosition());
-                            }
-                            out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                            telemetry.addData("Running transfer", true);
                         }
-
-
-                        // maybe write code to maybe speed it up
-                        // but we run into the issue of running into limits (and there are no limits so motors will be running)
-                        // and also the fact that sensor might not pick up cuz its too fast
+                        servo_intake_wrist_location = intake_wrist_pos_transfer;
+                        servo_outtake_wrist_location = outtake_wrist_pos_transfer;
+                        telemetry.addData("Running Servo Transfer", true);
                     }
-                    // manual macro steps
-                    // first press y ; misumi slide
-                    // then b ; servo wrist adjust
-                    // then a ; transfer
+                }
 
-                    //MACROS
 
-                    //auto-transfer
+                // Magnetic Sensor Method
+                //if (gamepad2.y) {
+                //   servo_intake_wrist_location = intake_wrist_pos_transfer;
+                //  servo_outtake_wrist_location = outtake_wrist_pos_transfer;
+
+                // if (!out_transfer.isPressed()) {
+                //      out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                //     out.setVelocity(200);
+                //     telemetry.addData("Out Moving", true);
+                //      telemetry.addData("Out_Transfer pressed", false);
+                //     out_true_target_pos = 0;
+                //  } else if (out_transfer.isPressed()) {
+                //     out.setVelocity(0);
+                //     out_true_target_pos = out.getCurrentPosition();
+                //    out.setTargetPosition(out_true_target_pos);
+                //     out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                //     servo_outtake.setPower(-1);
+                //    servo_intake.setPower(1);
+                //  } else if (out_zero.isPressed()) {
+                //     out.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                //     out.setVelocity(-400);
+                // } else {
+                //    out.setPower(200);
+                //    if (out_true_target_pos == 0) {
+                //        out_true_target_pos = out.getCurrentPosition();
+                //       out.setTargetPosition(out.getCurrentPosition());
+                //   }
+                //  out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                // }
+
+
+                // maybe write code to maybe speed it up
+                // but we run into the issue of running into limits (and there are no limits so motors will be running)
+                // and also the fact that sensor might not pick up cuz its too fast
+
+                // manual macro steps
+                // first press y ; misumi slide
+                // then b ; servo wrist adjust
+                // then a ; transfer
+
+                //MACROS
+
+                //auto-transfer
                 /*
                 if (gamepad2.y) {
                     if (transfer_step == 0) { //get in position
@@ -362,37 +368,38 @@ public class opmode_MAIN extends LinearOpMode {
                  */
 
 
-                    //telemetry stuff (prints stuff on the telemetry (driver hub))
-                    telemetry.addData("x", drive.pose.position.x);
-                    telemetry.addData("y", drive.pose.position.y);
-                    telemetry.addData("heading (deg)", Math.toDegrees(drive.pose.heading.toDouble()));
+                //telemetry stuff (prints stuff on the telemetry (driver hub))
+                telemetry.addData("x", drive.pose.position.x);
+                telemetry.addData("y", drive.pose.position.y);
+                telemetry.addData("heading (deg)", Math.toDegrees(drive.pose.heading.toDouble()));
 
-                    telemetry.addData("out_current_pos", out.getCurrentPosition());
-                    telemetry.addData("out_true_target_pos", out_true_target_pos);
-                    telemetry.addData("up_true_target_pos", up_true_target_pos);
-                    telemetry.addData("up_current_pos", up.getCurrentPosition());
-                    telemetry.addData("intake_wrist_current_pos", servo_intake_wrist_location);
-                    telemetry.addData("outtake_wrist_current_pos", servo_outtake_wrist_location);
-                    telemetry.addData("gamepad2.left_stick_y", gamepad2.left_stick_y);
-                    telemetry.addData("out_transfer", out_transfer.isPressed());
-                    telemetry.addData("out_zero", out_zero.isPressed());
+                telemetry.addData("out_current_pos", out.getCurrentPosition());
+                telemetry.addData("out_true_target_pos", out_true_target_pos);
+                telemetry.addData("up_true_target_pos", up_true_target_pos);
+                telemetry.addData("up_current_pos", up.getCurrentPosition());
+                telemetry.addData("intake_wrist_current_pos", servo_intake_wrist_location);
+                telemetry.addData("outtake_wrist_current_pos", servo_outtake_wrist_location);
+                telemetry.addData("gamepad2.left_stick_y", gamepad2.left_stick_y);
+                telemetry.addData("out_transfer", out_transfer.isPressed());
+                telemetry.addData("out_zero", out_zero.isPressed());
 
 
-                    //4 telemetry.addData("clawCurrentPos", servo_CLAW.getPosition());
-                    telemetry.update();
+                //4 telemetry.addData("clawCurrentPos", servo_CLAW.getPosition());
+                telemetry.update();
 
-                    //idk what this does, something for ftc dashboard i think
-                    TelemetryPacket packet = new TelemetryPacket();
-                    packet.fieldOverlay().setStroke("#3F51B5");
-                    Drawing.drawRobot(packet.fieldOverlay(), drive.pose);
-                    FtcDashboard.getInstance().sendTelemetryPacket(packet);
+                //idk what this does, something for ftc dashboard i think
+                TelemetryPacket packet = new TelemetryPacket();
+                packet.fieldOverlay().setStroke("#3F51B5");
+                Drawing.drawRobot(packet.fieldOverlay(), drive.pose);
+                FtcDashboard.getInstance().sendTelemetryPacket(packet);
 
-                    //increment the last_time
-                    last_time = runtime.seconds();
-                } else {
-                    throw new RuntimeException();
-                }
+                //increment the last_time
+                last_time = runtime.seconds();
+            }
+            } else {
+                throw new RuntimeException();
             }
         }
     }
-}
+
+
