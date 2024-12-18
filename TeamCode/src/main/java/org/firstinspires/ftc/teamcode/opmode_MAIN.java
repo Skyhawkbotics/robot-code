@@ -230,6 +230,8 @@ public class opmode_MAIN extends LinearOpMode {
                         }
                         servo_intake_wrist_location = intake_wrist_pos_transfer;
                         servo_outtake_wrist_location = outtake_wrist_pos_transfer;
+                        up.setTargetPosition(up_pos_transfer1);
+                        out.setTargetPosition(out_pos_transfer);
                         telemetry.addData("Running Servo Transfer", true);
                     }
                 }
