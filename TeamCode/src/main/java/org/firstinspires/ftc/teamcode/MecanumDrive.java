@@ -52,7 +52,7 @@ import java.util.LinkedList;
 import java.util.List;
 /*
 Macanum Drive is a type of drive train that uses 4 wheels that each each rotate independently, allowing it to move in any direction without needing to turn (its rlly cool)
-
+// TODO: We need to figure out if we are using Encoders or DEAD WHEELS  for Mecanum Drive tuning ; I vote Dead wheels
  */
 @Config
 public final class MecanumDrive {
@@ -62,9 +62,9 @@ public final class MecanumDrive {
         //   see https://ftc-docs.firstinspires.org/en/latest/programming_resources/imu/imu.html?highlight=imu#physical-hub-mounting\
         // Revhuborientatino is orientating the stuff idk
         public RevHubOrientationOnRobot.LogoFacingDirection logoFacingDirection =
-                RevHubOrientationOnRobot.LogoFacingDirection.BACKWARD;
+                RevHubOrientationOnRobot.LogoFacingDirection.UP; // As of 12/14, this is our Rev Hub Orientation
         public RevHubOrientationOnRobot.UsbFacingDirection usbFacingDirection =
-                RevHubOrientationOnRobot.UsbFacingDirection.RIGHT;
+                RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD;
 
         // drive model parameters
         public double inPerTick = 0.003004808;
@@ -242,7 +242,7 @@ public final class MecanumDrive {
 
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
-        localizer = new TwoDeadWheelLocalizer(hardwareMap, lazyImu.get(), PARAMS.inPerTick);
+        localizer = new TwoDeadWheelLocalizer(hardwareMap, lazyImu.get(), PARAMS.inPerTick); // Uses ODO
 
         FlightRecorder.write("MECANUM_PARAMS", PARAMS);
     }

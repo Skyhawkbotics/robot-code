@@ -66,7 +66,7 @@ public final class TwoDeadWheelLocalizer implements Localizer {
         PositionVelocityPair parPosVel = par.getPositionAndVelocity();
         PositionVelocityPair perpPosVel = perp.getPositionAndVelocity();
 
-        YawPitchRollAngles angles = imu.getRobotYawPitchRollAngles();
+        YawPitchRollAngles angles = imu.getRobotYawPitchRollAngles(); // Assuming this is degrees
         // Use degrees here to work around https://github.com/FIRST-Tech-Challenge/FtcRobotController/issues/1070
         AngularVelocity angularVelocityDegrees = imu.getRobotAngularVelocity(AngleUnit.DEGREES);
         AngularVelocity angularVelocity = new AngularVelocity(
@@ -101,7 +101,7 @@ public final class TwoDeadWheelLocalizer implements Localizer {
                     DualNum.constant(0.0, 2)
             );
         }
-
+// The differences between past and present
         int parPosDelta = parPosVel.position - lastParPos;
         int perpPosDelta = perpPosVel.position - lastPerpPos;
         double headingDelta = heading.minus(lastHeading);
