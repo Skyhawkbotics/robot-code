@@ -48,6 +48,7 @@ public class right_Auto extends LinearOpMode { // extends means inherits from li
             up.setDirection(DcMotorSimple.Direction.REVERSE);
             up.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
+
         public class Elevator_Up_Move implements Action {
             // checks if the lift motor has been powered on
             private boolean initialized = false;
@@ -64,28 +65,39 @@ public class right_Auto extends LinearOpMode { // extends means inherits from li
                 if (pos < up_specimen_hang) {
                     return true;
                 } else {
-                    up.setPower(0);
-                    up.setVelocity(0);
+                    up.setVelocity(10);
                     return false;
                 }
             }
         }
+
         public Action elevator_up_move() {
             return new Elevator_Up_Move();
         }
 
         public class Elevator_Down_Move implements Action {
+            // checks if the lift motor has been powered on
             private boolean initialized = false;
 
+            // actions are formatted via telemetry packets as below
             @Override
-            public boolean run(@NonNull TelemetryPacket packet) {
-               up.setTargetPosition(up_specimen_hang2);
-               return true;
+            public boolean run(@NonNull TelemetryPacket packet) {// why this parameter?
+                if (!initialized) {
+                    up.setVelocity(-400);
+                    initialized = true;
+                }
+                double pos = up.getCurrentPosition();
+                packet.put("Up Pos", pos);
+                if (pos < up_specimen_hang2) {
+                    return true;
+                } else {
+                    up.setVelocity(10);
+                    return false;
+                }
             }
-
         }
-        public Action elevator_down_move() {
 
+        public Action elevator_down_move() {
             return new Elevator_Down_Move();
         }
     }
@@ -168,7 +180,8 @@ public class right_Auto extends LinearOpMode { // extends means inherits from li
 
         Actions.runBlocking(
                 new SequentialAction(
-                        up.elevator_up_move()
+                        up.elevator_up_move(),
+                        up.elevator_down_move()
 
                         //new ParallelAction(
                         //up.elevator_down_move(), claw.elevator_Claw_Move()
