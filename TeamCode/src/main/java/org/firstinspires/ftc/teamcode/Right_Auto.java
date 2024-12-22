@@ -32,13 +32,18 @@ public class Right_Auto extends LinearOpMode { // extends means inherits from li
     double servo_CLAW_power = 0.0;
     double servo_CLAW_position = 0.0;
 
+    int up_specimen_hang = 1907;
+
+    int up_specimen_hang2 = 980;
+    double outtake_servo_hang = 0.45;
+
     double last_time = 0;
     private ElapsedTime runtime = new ElapsedTime();
 
     // We need to create classes for each definition of hardware that isn't part of our drivetrain (I think this is for organization)
     // Here we make 6 classes, one for viper slide and one for misumi slide, and their claws and wrists and that one sensor (I'm too scared to combine them)
     public class Elevator { // We made nested classes, First class is Elevator with all the methods that involve elevator
-        private DcMotorEx up;
+        private final DcMotorEx up;
 
         public Elevator(HardwareMap Hardwaremap) {
             up = hardwareMap.get(DcMotorEx.class, "up");
@@ -53,26 +58,10 @@ public class Right_Auto extends LinearOpMode { // extends means inherits from li
             // actions are formatted via telemetry packets as below
             @Override
             public boolean run(@NonNull TelemetryPacket packet) { // why this parameter?
-                // powers on motor, if it is not on
-                if (!initialized) {
-                    up.setPower(1);
-                    initialized = true;
-                }
-
-                // checks lift's current position
-                double pos = up.getCurrentPosition();
-                packet.put("liftPos", pos);
-                if (pos < 500) {
-                    // true causes the action to rerun
-                    return true;
-                } else {
-                    // false stops action rerun
-                    up.setPower(0);
-                    return false;
-                }
-                // overall, the action powers the lift until it surpasses
-                // 3000 encoder ticks, then powers it off
+                up.setTargetPosition(up_specimen_hang);
+                return true;
             }
+
         }
         public Action elevator_up_move() {
             return new Elevator_Up_Move();
@@ -83,23 +72,8 @@ public class Right_Auto extends LinearOpMode { // extends means inherits from li
 
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
-                if (!initialized) {
-                    up.setPower(-0.8);
-                    initialized = true;
-                }
-                // checks lift's current position
-                double pos = up.getCurrentPosition();
-                packet.put("liftPos", pos);
-                if (pos > 100) {
-                    // true causes the action to rerun
-                    return true;
-                } else {
-                    // false stops action rerun
-                    up.setPower(0);
-                    return false;
-                }
-                // overall, the action powers the lift until it surpasses 300 encoder ticks? wait so its runtime then right
-                // DOESN'T have to be precise! it just roughly is fine.... DRIVING tho should be precise :skull:
+               up.setTargetPosition(up_specimen_hang2);
+               return true;
             }
 
         }
@@ -158,18 +132,18 @@ public class Right_Auto extends LinearOpMode { // extends means inherits from li
 
     @Override
     public void runOpMode() throws InterruptedException {
-        Pose2d initialPose = new Pose2d(0, 0, Math.toRadians(90));
+        Pose2d initialPose = new Pose2d(0, -70, Math.toRadians(90));
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
 
         // make a Claw instance
         Elevator up = new Elevator(hardwareMap);
         // make a Lift instance
-        Elevator_claw servo_outtake = new Elevator_claw(hardwareMap);
-
+        Elevator_claw claw = new Elevator_claw(hardwareMap);
 
         // actionBuilder builds from the drive steps passed to it
-        TrajectoryActionBuilder rightCorner = drive.actionBuilder(/*start position*/new Pose2d(0.0, 0.0, 0.0)) // tells the robot where it's going to start?
-                .strafeTo(new Vector2d(10,10));
+        Action drive_forward = drive.actionBuilder(/*start position*/new Pose2d(0.0, -70, 90.0)) // tells the robot where it's going to start?
+                .lineToY(30)
+                .build();
 
 
 
@@ -186,18 +160,24 @@ public class Right_Auto extends LinearOpMode { // extends means inherits from li
         while (!isStopRequested() && !opModeIsActive()) {
             telemetry.update();
         }
-        int startPosition = 0;
-        telemetry.addData("Starting Position", startPosition);
+
+        telemetry.addData("y", drive.pose.position.y);
+        telemetry.addData("heading (deg)", Math.toDegrees(drive.pose.heading.toDouble()));
         telemetry.update();
-        waitForStart();
         if (isStopRequested()) return;
-        Action rightCornerbuild;
-        rightCornerbuild = rightCorner.build();
+        Action drive_forward_build;
+        drive_forward_build= drive_forward;
+
         Actions.runBlocking(
                 new SequentialAction(
-                        rightCornerbuild
-                )
+                        drive_forward_build,
+                        up.elevator_up_move(),
 
+                        up.elevator_down_move()
+                        //new ParallelAction(
+                        //up.elevator_down_move(), claw.elevator_Claw_Move()
+                        //)
+                )
         );
     }
 }
