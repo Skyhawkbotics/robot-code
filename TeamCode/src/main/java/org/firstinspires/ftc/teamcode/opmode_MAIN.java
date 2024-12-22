@@ -40,7 +40,7 @@ public class opmode_MAIN extends LinearOpMode {
     double outtake_wrist_pos_transfer = 0.2;
     int out_pos_transfer = -13;//TODO: edit this for calibration!
 
-    int up_specimen_hang = 1907;
+    int up_specimen_hang = 1907; // Viper
 
     double outtake_specimen_hang = 0.45;
     int up_pos_transfer1 = 290;
