@@ -13,24 +13,19 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.acmerobotics.roadrunner.*;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
-import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
-
+import com.acmerobotics.dashboard.config.Config;
 
 import java.lang.Math;
-@Autonomous(name = "Right_Auto")
-public class Right_Auto extends LinearOpMode { // extends means inherits from linear op mode
 
-    private DcMotorEx up;
 
-    private CRServo servo_outtake;
-    private TouchSensor up_zero;
-    double servo_CLAW_power = 0.0;
-    double servo_CLAW_position = 0.0;
+@Config
+@Autonomous(name = "right_Auto")
+public class right_Auto extends LinearOpMode { // extends means inherits from linear op mode
+
 
     int up_specimen_hang = 1907;
 
@@ -42,14 +37,16 @@ public class Right_Auto extends LinearOpMode { // extends means inherits from li
 
     // We need to create classes for each definition of hardware that isn't part of our drivetrain (I think this is for organization)
     // Here we make 6 classes, one for viper slide and one for misumi slide, and their claws and wrists and that one sensor (I'm too scared to combine them)
+
     public class Elevator { // We made nested classes, First class is Elevator with all the methods that involve elevator
         private final DcMotorEx up;
 
-        public Elevator(HardwareMap Hardwaremap) {
+        public Elevator(HardwareMap Hardwaremap) { // Class for Dx motor Up initilize
             up = hardwareMap.get(DcMotorEx.class, "up");
             up.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             up.setDirection(DcMotorSimple.Direction.REVERSE);
+            up.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
         public class Elevator_Up_Move implements Action {
             // checks if the lift motor has been powered on
@@ -57,11 +54,21 @@ public class Right_Auto extends LinearOpMode { // extends means inherits from li
 
             // actions are formatted via telemetry packets as below
             @Override
-            public boolean run(@NonNull TelemetryPacket packet) { // why this parameter?
-                up.setTargetPosition(up_specimen_hang);
-                return true;
+            public boolean run(@NonNull TelemetryPacket packet) {// why this parameter?
+                if (!initialized) {
+                    up.setVelocity(400);
+                    initialized = true;
+                }
+                double pos = up.getCurrentPosition();
+                packet.put("Up Pos", pos);
+                if (pos < up_specimen_hang) {
+                    return true;
+                } else {
+                    up.setPower(0);
+                    up.setVelocity(0);
+                    return false;
+                }
             }
-
         }
         public Action elevator_up_move() {
             return new Elevator_Up_Move();
@@ -83,7 +90,7 @@ public class Right_Auto extends LinearOpMode { // extends means inherits from li
         }
     }
 
-    /*   public class Induction {
+    public class Induction {
            private DcMotorEx out;
 
            public Induction(HardwareMap hardwareMap) {
@@ -92,16 +99,7 @@ public class Right_Auto extends LinearOpMode { // extends means inherits from li
                out.setTargetPosition(0);
                out.setMode(DcMotor.RunMode.RUN_TO_POSITION);
            }
-       }
-        public class sensor {
-            private TouchSensor up_zero;
-
-            public sensor(HardwareMap hardwareMap) {
-
-            }
-        }
-
-     */
+    }
 
     public class Elevator_claw {
         private CRServo servo_outtake;
@@ -170,10 +168,8 @@ public class Right_Auto extends LinearOpMode { // extends means inherits from li
 
         Actions.runBlocking(
                 new SequentialAction(
-                        drive_forward_build,
-                        up.elevator_up_move(),
+                        up.elevator_up_move()
 
-                        up.elevator_down_move()
                         //new ParallelAction(
                         //up.elevator_down_move(), claw.elevator_Claw_Move()
                         //)
