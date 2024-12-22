@@ -38,7 +38,11 @@ public class opmode_MAIN extends LinearOpMode {
     // int transfer_step = 0;
     double intake_wrist_pos_transfer = 0.1;
     double outtake_wrist_pos_transfer = 0.2;
-    int out_pos_transfer = -11;//TODO: edit this for calibration!
+    int out_pos_transfer = -13;//TODO: edit this for calibration!
+
+    int up_specimen_hang = 1907;
+
+    double outtake_specimen_hang = 0.45;
     int up_pos_transfer1 = 290;
     // double up_pos_transfer2 = 10;
     // double up_pos_transfer3 = 20;
@@ -198,10 +202,10 @@ public class opmode_MAIN extends LinearOpMode {
                 servo_outtake_wrist.setPosition(servo_outtake_wrist_location);
 
                 // manual intake wrist location
-                if (gamepad2.dpad_right) {
+                if (gamepad2.dpad_left) {
                     servo_intake_wrist_location += 0.05;
                 }
-                if (gamepad2.dpad_left) {
+                if (gamepad2.dpad_right) {
                     servo_intake_wrist_location -= 0.05;
                 }
                 // limits
@@ -225,7 +229,7 @@ public class opmode_MAIN extends LinearOpMode {
                     if (out.getCurrentPosition() == out_pos_transfer && up.getCurrentPosition() == up_pos_transfer1) {
                         if(servo_outtake_wrist.getPosition() == outtake_wrist_pos_transfer && servo_intake_wrist.getPosition() == intake_wrist_pos_transfer) {
                             servo_outtake.setPower(-1);
-                            servo_intake.setPower(1);
+                            servo_intake.setPower(-1);
                             telemetry.addData("Running transfer", true);
                         }
                         servo_intake_wrist_location = intake_wrist_pos_transfer;
@@ -235,6 +239,16 @@ public class opmode_MAIN extends LinearOpMode {
                         telemetry.addData("Running Servo Transfer", true);
                     }
                 }
+                if (gamepad2.a) {
+                    servo_outtake.setPower(-1);
+                    servo_intake.setPower(-1);
+                }
+                if (gamepad2.y) {
+                        up.setTargetPosition(up_specimen_hang);
+                    up.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    servo_outtake_wrist_location = outtake_specimen_hang;
+                }
+
 
 
                 // Magnetic Sensor Method
@@ -384,7 +398,7 @@ public class opmode_MAIN extends LinearOpMode {
                 telemetry.addData("gamepad2.left_stick_y", gamepad2.left_stick_y);
                 telemetry.addData("out_transfer", out_transfer.isPressed());
                 telemetry.addData("out_zero", out_zero.isPressed());
-
+                telemetry.addData("elepased time", runtime);
 
                 //4 telemetry.addData("clawCurrentPos", servo_CLAW.getPosition());
                 telemetry.update();
