@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 
+import com.acmerobotics.roadrunner.ParallelAction;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode; // called from the start
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -11,6 +12,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.acmerobotics.roadrunner.Action;
@@ -29,10 +31,13 @@ public class right_Auto extends LinearOpMode { // extends means inherits from li
 
     int up_specimen_hang = 1907;
 
-    int up_specimen_hang2 = 980;
+    int up_specimen_hang2 = 700 ;
+
+    int Up_specimen_hang1 = 1371;
     double outtake_servo_hang = 0.45;
 
     double last_time = 0;
+    double gravity_power_tune = 0.01;
     private ElapsedTime runtime = new ElapsedTime();
 
     // We need to create classes for each definition of hardware that isn't part of our drivetrain (I think this is for organization)
@@ -57,22 +62,47 @@ public class right_Auto extends LinearOpMode { // extends means inherits from li
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {// why this parameter?
                 if (!initialized) {
-                    up.setVelocity(400);
+                    up.setPower(1);
                     initialized = true;
                 }
                 double pos = up.getCurrentPosition();
-                packet.put("Up Pos", pos);
                 if (pos < up_specimen_hang) {
+                    telemetry.addData("Up Pos", pos);
+                    telemetry.addData("velocity", up.getVelocity());
+                    telemetry.update();
                     return true;
                 } else {
-                    up.setVelocity(10);
+                    up.setPower(gravity_power_tune);
+                    telemetry.addData("Up Pos", pos);
+                    telemetry.addData("velocity", up.getVelocity());
+                    telemetry.update();
+                    sleep(2000);
                     return false;
+
                 }
             }
         }
 
+
         public Action elevator_up_move() {
             return new Elevator_Up_Move();
+        }
+        public class wait_Dont_Kys implements Action {
+            private boolean time_spent = false;
+
+            double time = runtime.seconds();
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                while (time < 15) {
+                telemetry.addData("waiting for sigma", time);
+                }
+                time_spent = true;
+                return true;
+
+            }
+        }
+        public Action wait_dont_kys() {
+            return new wait_Dont_Kys();
         }
 
         public class Elevator_Down_Move implements Action {
@@ -83,22 +113,56 @@ public class right_Auto extends LinearOpMode { // extends means inherits from li
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {// why this parameter?
                 if (!initialized) {
-                    up.setVelocity(-400);
+                    up.setPower(-0.5);
                     initialized = true;
                 }
                 double pos = up.getCurrentPosition();
-                packet.put("Up Pos", pos);
-                if (pos < up_specimen_hang2) {
+                telemetry.addData("pos", pos);
+                telemetry.addData("velocity", up.getVelocity());
+                telemetry.update();
+                if (pos > up_specimen_hang2) {
                     return true;
                 } else {
-                    up.setVelocity(10);
+                    up.setPower(gravity_power_tune);
+                    sleep(2000);
                     return false;
+
+
                 }
             }
         }
 
         public Action elevator_down_move() {
             return new Elevator_Down_Move();
+        }
+        public class Elevator_Down_Move1 implements Action {
+            // checks if the lift motor has been powered on
+            private boolean initialized = false;
+
+            // actions are formatted via telemetry packets as below
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {// why this parameter?
+                if (!initialized) {
+                    up.setPower(-0.2);
+                    initialized = true;
+                }
+                double pos = up.getCurrentPosition();
+                telemetry.addData("pos", pos);
+                telemetry.addData("velocity", up.getVelocity());
+                telemetry.update();
+                if (pos > Up_specimen_hang1) {
+                    return true;
+                } else {
+                    up.setPower(gravity_power_tune);
+                    sleep(2000);
+                    return false;
+
+
+                }
+            }
+        }
+        public Action elevator_down_move1() {
+            return new Elevator_Down_Move1();
         }
     }
 
@@ -114,23 +178,32 @@ public class right_Auto extends LinearOpMode { // extends means inherits from li
     }
 
     public class Elevator_claw {
-        private CRServo servo_outtake;
+        private Servo servo_outtake;
 
         public Elevator_claw(HardwareMap hardwaremap) {
-            servo_outtake = hardwareMap.get(CRServo.class, "outtake");
+            servo_outtake = hardwareMap.get(Servo.class, "outtakeWrist");
         }
 
 
         // Class Action to Move viper slide elevator
         // Implements inherits action into Elevator_Up_Move --- more stuff we can do i think
         public class Elevator_Claw_Move implements Action {
+            private boolean initilized = false;
+
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
-                servo_outtake.setPower(-1);
-                return false; // why do i need to RETURN (ask allan)
+                if (!initilized) {
+                    servo_outtake.setPosition(0.45);
+                    initilized = true;
+                    return true;
+                } else {
+                    sleep(1000);
+                    return false;
+                }
+
             }
         }
-        public Action elevator_Claw_Move() {
+        public Action elevator_claw_move() {
             return new Elevator_Claw_Move();
         }
     }
@@ -151,9 +224,12 @@ public class right_Auto extends LinearOpMode { // extends means inherits from li
         Elevator_claw claw = new Elevator_claw(hardwareMap);
 
         // actionBuilder builds from the drive steps passed to it
-        Action drive_forward = drive.actionBuilder(/*start position*/new Pose2d(0.0, -70, 90.0)) // tells the robot where it's going to start?
-                .lineToY(30)
+        Action drive_forward = drive.actionBuilder(/*start position*/new Pose2d(0.0, 0, 90.0)) // tells the robot where it's going to start?
+                .lineToY(20.32)
                 .build();
+        Action drive_forward2 = drive.actionBuilder(new Pose2d(0,0,90))
+                        .lineToY(1.23)
+                                .build();
 
 
 
@@ -173,14 +249,24 @@ public class right_Auto extends LinearOpMode { // extends means inherits from li
 
         telemetry.addData("y", drive.pose.position.y);
         telemetry.addData("heading (deg)", Math.toDegrees(drive.pose.heading.toDouble()));
+        telemetry.addData("runtime", runtime);
+
         telemetry.update();
         if (isStopRequested()) return;
         Action drive_forward_build;
         drive_forward_build= drive_forward;
+        Action drive_forward_build1;
+        drive_forward_build1=drive_forward2;
 
         Actions.runBlocking(
                 new SequentialAction(
-                        up.elevator_up_move(),
+                        new ParallelAction(
+                                up.elevator_up_move(),
+                                claw.elevator_claw_move()
+                        ),
+                        drive_forward,
+                        up.elevator_down_move1(),
+                        drive_forward2,
                         up.elevator_down_move()
 
                         //new ParallelAction(
@@ -188,5 +274,7 @@ public class right_Auto extends LinearOpMode { // extends means inherits from li
                         //)
                 )
         );
+        telemetry.update();
+        sleep(10000);
     }
 }
