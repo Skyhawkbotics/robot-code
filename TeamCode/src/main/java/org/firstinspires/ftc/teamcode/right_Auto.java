@@ -272,7 +272,7 @@ public class right_Auto extends LinearOpMode { // extends means inherits from li
                         //new ParallelAction(
                         //up.elevator_down_move(), claw.elevator_Claw_Move()
                         //)
-                )
+                )// it moves but theres like drift itkidk
         );
         telemetry.update();
         sleep(10000);
