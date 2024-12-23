@@ -225,7 +225,7 @@ public class right_Auto extends LinearOpMode { // extends means inherits from li
 
         // actionBuilder builds from the drive steps passed to it
         Action drive_forward = drive.actionBuilder(/*start position*/new Pose2d(0.0, 0, 90.0)) // tells the robot where it's going to start?
-                .lineToY(20.32)
+                .lineToY(19)
                 .build();
         Action drive_forward2 = drive.actionBuilder(new Pose2d(0,0,90))
                         .lineToY(1.23)
