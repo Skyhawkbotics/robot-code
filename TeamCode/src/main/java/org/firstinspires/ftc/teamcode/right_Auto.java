@@ -5,6 +5,8 @@ import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 
 import com.acmerobotics.roadrunner.ParallelAction;
+import com.acmerobotics.roadrunner.Rotation2d;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode; // called from the start
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -31,13 +33,13 @@ public class right_Auto extends LinearOpMode { // extends means inherits from li
 
     int up_specimen_hang = 1907;
 
-    int up_specimen_hang2 = 700 ;
+    int up_specimen_hang2 = 500 ;
 
-    int Up_specimen_hang1 = 1371;
-    double outtake_servo_hang = 0.45;
+    int Up_specimen_hang1 = 1313;
+    double outtake_servo_hang = 0.30;
 
     double last_time = 0;
-    double gravity_power_tune = 0.01;
+    double gravity_power_tune = 0.001;
     private ElapsedTime runtime = new ElapsedTime();
 
     // We need to create classes for each definition of hardware that isn't part of our drivetrain (I think this is for organization)
@@ -62,11 +64,11 @@ public class right_Auto extends LinearOpMode { // extends means inherits from li
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {// why this parameter?
                 if (!initialized) {
-                    up.setPower(1);
+                    up.setPower(0.5);
                     initialized = true;
                 }
                 double pos = up.getCurrentPosition();
-                if (pos < up_specimen_hang) {
+                if (pos <= Up_specimen_hang1) {
                     telemetry.addData("Up Pos", pos);
                     telemetry.addData("velocity", up.getVelocity());
                     telemetry.update();
@@ -86,6 +88,39 @@ public class right_Auto extends LinearOpMode { // extends means inherits from li
 
         public Action elevator_up_move() {
             return new Elevator_Up_Move();
+        }
+        public class Elevator_Up_Move1 implements Action {
+            // checks if the lift motor has been powered on
+            private boolean initialized = false;
+
+            // actions are formatted via telemetry packets as below
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {// why this parameter?
+                if (!initialized) {
+                    up.setPower(-0.4);
+                    initialized = true;
+                }
+                double pos = up.getCurrentPosition();
+                if (pos > up_specimen_hang2) {
+                    telemetry.addData("Up Pos", pos);
+                    telemetry.addData("velocity", up.getVelocity());
+                    telemetry.update();
+                    return true;
+                } else {
+                    up.setPower(gravity_power_tune);
+                    telemetry.addData("Up Pos", pos);
+                    telemetry.addData("velocity", up.getVelocity());
+                    telemetry.update();
+                    sleep(2000);
+                    return false;
+
+                }
+            }
+        }
+
+
+        public Action elevator_up_move1() {
+            return new Elevator_Up_Move1();
         }
         public class wait_Dont_Kys implements Action {
             private boolean time_spent = false;
@@ -224,11 +259,55 @@ public class right_Auto extends LinearOpMode { // extends means inherits from li
         Elevator_claw claw = new Elevator_claw(hardwareMap);
 
         // actionBuilder builds from the drive steps passed to it
-        Action drive_forward = drive.actionBuilder(/*start position*/new Pose2d(0.0, 0, 90.0)) // tells the robot where it's going to start?
-                .lineToY(19)
+        Action drive_forward = drive.actionBuilder(/*start position*/new Pose2d(0.0, -70, 90.0)) // tells the robot where it's going to start?
+                .strafeToLinearHeading(new Vector2d(0, -40), Rotation2d.fromDouble(Math.toRadians(90)))
+                //first place
+                .build();
+        Action hang = drive.actionBuilder(new Pose2d(0.0,-40,90))
+                .waitSeconds(2)
+                .build();
+        Action rest = drive.actionBuilder(new Pose2d(0.0, -33, 90))
+                .lineToY(-44) //back up
+
+                .strafeTo(new Vector2d(34, -44)) //don't run into sub
+                .strafeTo(new Vector2d(34, -5)) //don't run into sample!
+                //first sample push
+                .strafeTo(new Vector2d(45,-5))
+                .waitSeconds(.1)
+                .lineToY(-50)
+                .lineToY(-15)
+                //second sample push
+                .strafeTo(new Vector2d(54,-12))
+                .waitSeconds(.1)
+                .lineToY(-50)
+                .lineToY(-15)
+                //third sample push
+                .strafeTo(new Vector2d(62,-12))
+                .waitSeconds(.1)
+                .lineToY(-50)
+                .waitSeconds(.1)
+                .setTangent(Math.toRadians(180)) //rotation positioning
+                .lineToXSplineHeading(36,Math.toRadians(270)) //line up for pickup
+                .setTangent(Math.toRadians(90))
+                .lineToY(-62)
+                //pick up first
+                .strafeToLinearHeading(new Vector2d(10,-32), Rotation2d.fromDouble(Math.toRadians(90)))
+                //place first
+                .waitSeconds(1.25)
+                .strafeToLinearHeading(new Vector2d(36,-52), Rotation2d.fromDouble(Math.toRadians(270))) //line up for pickup
+                .waitSeconds(.1)
+                //pick up second
+                .lineToY(-62)
+                .strafeToLinearHeading(new Vector2d(6,-32), Rotation2d.fromDouble(Math.toRadians(90)))
+                //place second
+                .waitSeconds(1.25)
+                .build();
+        Action park =drive.actionBuilder(new Pose2d(0.0, -33, 90))
+                .strafeTo(new Vector2d(50,-62)) //parking
+
                 .build();
         Action drive_forward2 = drive.actionBuilder(new Pose2d(0,0,90))
-                        .lineToY(1.23)
+                        .lineToY(-45)
                                 .build();
 
 
@@ -260,14 +339,17 @@ public class right_Auto extends LinearOpMode { // extends means inherits from li
 
         Actions.runBlocking(
                 new SequentialAction(
-                        new ParallelAction(
-                                up.elevator_up_move(),
-                                claw.elevator_claw_move()
-                        ),
                         drive_forward,
-                        up.elevator_down_move1(),
-                        drive_forward2,
-                        up.elevator_down_move()
+                        new ParallelAction(
+                                claw.elevator_claw_move(),
+                             up.elevator_up_move()
+                        ),
+                       up.elevator_down_move()
+
+
+                        //up.elevator_down_move1(),
+                        //drive_forward_build1,
+                        //up.elevator_down_move()
 
                         //new ParallelAction(
                         //up.elevator_down_move(), claw.elevator_Claw_Move()
