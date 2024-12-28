@@ -15,7 +15,6 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
@@ -33,9 +32,9 @@ public class right_Auto extends LinearOpMode { // extends means inherits from li
 
     int up_specimen_hang = 1907;
 
-    int up_specimen_hang2 = 500 ;
+    int up_specimen_hang2 = 500 ; // Todo: Calibrate this position to fit the after hang height, beware this might rip the claw off if its too off. Set these perhaps in opmode first
 
-    int Up_specimen_hang1 = 1313;
+    int Up_specimen_hang1 = 1313; // TODO :  Calibrate these to fit exactly between specimen hanger and claw
     double outtake_servo_hang = 0.30;
 
     double last_time = 0;
@@ -44,11 +43,10 @@ public class right_Auto extends LinearOpMode { // extends means inherits from li
 
     // We need to create classes for each definition of hardware that isn't part of our drivetrain (I think this is for organization)
     // Here we make 6 classes, one for viper slide and one for misumi slide, and their claws and wrists and that one sensor (I'm too scared to combine them)
-
     public class Elevator { // We made nested classes, First class is Elevator with all the methods that involve elevator
         private final DcMotorEx up;
 
-        public Elevator(HardwareMap Hardwaremap) { // Class for Dx motor Up initilize
+        public Elevator(HardwareMap Hardwaremap) { // Class for Dx motor Up initialize
             up = hardwareMap.get(DcMotorEx.class, "up");
             up.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -56,7 +54,7 @@ public class right_Auto extends LinearOpMode { // extends means inherits from li
             up.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
 
-        public class Elevator_Up_Move implements Action {
+        public class Elevator_Up_Move_specimen implements Action {
             // checks if the lift motor has been powered on
             private boolean initialized = false;
 
@@ -64,7 +62,7 @@ public class right_Auto extends LinearOpMode { // extends means inherits from li
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {// why this parameter?
                 if (!initialized) {
-                    up.setPower(0.5);
+                    up.setPower(0.8); // TODO: speed this up if possible
                     initialized = true;
                 }
                 double pos = up.getCurrentPosition();
@@ -78,18 +76,17 @@ public class right_Auto extends LinearOpMode { // extends means inherits from li
                     telemetry.addData("Up Pos", pos);
                     telemetry.addData("velocity", up.getVelocity());
                     telemetry.update();
-                    sleep(2000);
                     return false;
 
                 }
             }
         }
 
-
-        public Action elevator_up_move() {
-            return new Elevator_Up_Move();
+        public Action elevator_up_move_specimen() {
+            return new Elevator_Up_Move_specimen();
         }
-        public class Elevator_Up_Move1 implements Action {
+
+        public class Elevator_Down_Move_Specimen implements Action {
             // checks if the lift motor has been powered on
             private boolean initialized = false;
 
@@ -97,69 +94,20 @@ public class right_Auto extends LinearOpMode { // extends means inherits from li
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {// why this parameter?
                 if (!initialized) {
-                    up.setPower(-0.4);
-                    initialized = true;
-                }
-                double pos = up.getCurrentPosition();
-                if (pos > up_specimen_hang2) {
-                    telemetry.addData("Up Pos", pos);
-                    telemetry.addData("velocity", up.getVelocity());
-                    telemetry.update();
-                    return true;
-                } else {
-                    up.setPower(gravity_power_tune);
-                    telemetry.addData("Up Pos", pos);
-                    telemetry.addData("velocity", up.getVelocity());
-                    telemetry.update();
-                    sleep(2000);
-                    return false;
-
-                }
-            }
-        }
-
-
-        public Action elevator_up_move1() {
-            return new Elevator_Up_Move1();
-        }
-        public class wait_Dont_Kys implements Action {
-            private boolean time_spent = false;
-
-            double time = runtime.seconds();
-            @Override
-            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                while (time < 15) {
-                telemetry.addData("waiting for sigma", time);
-                }
-                time_spent = true;
-                return true;
-
-            }
-        }
-        public Action wait_dont_kys() {
-            return new wait_Dont_Kys();
-        }
-
-        public class Elevator_Down_Move implements Action {
-            // checks if the lift motor has been powered on
-            private boolean initialized = false;
-
-            // actions are formatted via telemetry packets as below
-            @Override
-            public boolean run(@NonNull TelemetryPacket packet) {// why this parameter?
-                if (!initialized) {
-                    up.setPower(-0.5);
+                    up.setPower(-1); // Todo: Calibrate this if its too fast
                     initialized = true;
                 }
                 double pos = up.getCurrentPosition();
                 telemetry.addData("pos", pos);
-                telemetry.addData("velocity", up.getVelocity());
+                telemetry.addData("velocity", up.getPower());
                 telemetry.update();
-                if (pos > up_specimen_hang2) {
+                if (pos >= up_specimen_hang2) {
                     return true;
                 } else {
                     up.setPower(gravity_power_tune);
-                    sleep(2000);
+                    telemetry.addData("pos", pos);
+                    telemetry.addData("velocity", up.getPower());
+                    telemetry.update();
                     return false;
 
 
@@ -167,37 +115,8 @@ public class right_Auto extends LinearOpMode { // extends means inherits from li
             }
         }
 
-        public Action elevator_down_move() {
-            return new Elevator_Down_Move();
-        }
-        public class Elevator_Down_Move1 implements Action {
-            // checks if the lift motor has been powered on
-            private boolean initialized = false;
-
-            // actions are formatted via telemetry packets as below
-            @Override
-            public boolean run(@NonNull TelemetryPacket packet) {// why this parameter?
-                if (!initialized) {
-                    up.setPower(-0.2);
-                    initialized = true;
-                }
-                double pos = up.getCurrentPosition();
-                telemetry.addData("pos", pos);
-                telemetry.addData("velocity", up.getVelocity());
-                telemetry.update();
-                if (pos > Up_specimen_hang1) {
-                    return true;
-                } else {
-                    up.setPower(gravity_power_tune);
-                    sleep(2000);
-                    return false;
-
-
-                }
-            }
-        }
-        public Action elevator_down_move1() {
-            return new Elevator_Down_Move1();
+        public Action elevator_down_move_specimen() {
+            return new Elevator_Down_Move_Specimen();
         }
     }
 
@@ -212,34 +131,58 @@ public class right_Auto extends LinearOpMode { // extends means inherits from li
            }
     }
 
-    public class Elevator_claw {
-        private Servo servo_outtake;
+    public class Outtake_claw_wrist {
+        private Servo servo_outtake_wrist;
 
-        public Elevator_claw(HardwareMap hardwaremap) {
-            servo_outtake = hardwareMap.get(Servo.class, "outtakeWrist");
+        public Outtake_claw_wrist(HardwareMap hardwaremap) {
+            servo_outtake_wrist = hardwareMap.get(Servo.class, "outtakeWrist");
         }
 
 
         // Class Action to Move viper slide elevator
-        // Implements inherits action into Elevator_Up_Move --- more stuff we can do i think
-        public class Elevator_Claw_Move implements Action {
-            private boolean initilized = false;
+        // Implements inherits action into Elevator_Up_Move_specimen --- more stuff we can do i think
+        public class Elevator_Claw_Wrist_Move_Specimen implements Action {
+            private boolean initialized = false;
 
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
-                if (!initilized) {
-                    servo_outtake.setPosition(0.45);
-                    initilized = true;
+                if (!initialized) {
+                    servo_outtake_wrist.setPosition(0.45);
+                    initialized = true;
                     return true;
                 } else {
-                    sleep(1000);
                     return false;
                 }
 
             }
         }
-        public Action elevator_claw_move() {
-            return new Elevator_Claw_Move();
+        public Action elevator_claw_wrist_move_specimen() {
+            return new Elevator_Claw_Wrist_Move_Specimen();
+        }
+    }
+    public class Outtake_claw {
+        private final CRServo servo_outtake;
+
+        public Outtake_claw(HardwareMap hardwaremap) {
+            servo_outtake = hardwaremap.get(CRServo.class,"outtake");
+        }
+
+        public class Elevator_Claw_Specimen implements Action {
+            @Override
+            public boolean run(TelemetryPacket packet) { // not sure how this runs
+                runtime.reset();
+                telemetry.addData("Time", runtime);
+                while (runtime.seconds() < 1) {
+                        telemetry.addData("Running Outtake", servo_outtake.getPower());
+                        telemetry.addData("Time", runtime);
+                        telemetry.update();
+                        servo_outtake.setPower(-1); // Todo : set this to the correct power
+                    }
+                    return true;
+            }
+        }
+        public Action elevator_claw_move_specimen() {
+            return new Elevator_Claw_Specimen();
         }
     }
 
@@ -256,15 +199,17 @@ public class right_Auto extends LinearOpMode { // extends means inherits from li
         // make a Claw instance
         Elevator up = new Elevator(hardwareMap);
         // make a Lift instance
-        Elevator_claw claw = new Elevator_claw(hardwareMap);
+        Outtake_claw_wrist Outtake_claw_wrist = new Outtake_claw_wrist(hardwareMap);
+        // makes claw instance
+        Outtake_claw Outtake_claw = new Outtake_claw(hardwareMap);
 
-        // actionBuilder builds from the drive steps passed to it
-        Action drive_forward = drive.actionBuilder(/*start position*/new Pose2d(0.0, -70, 90.0)) // tells the robot where it's going to start?
-                .strafeToLinearHeading(new Vector2d(0, -40), Rotation2d.fromDouble(Math.toRadians(90)))
-                //first place
+
+        // trajectory plans
+        Action drive_forward_hang_specimen = drive.actionBuilder(initialPose) // tells the robot where it's going to start?
+                .strafeToLinearHeading(new Vector2d(0, -40), Rotation2d.fromDouble(Math.toRadians(90))) // TODO : Tune this so it stops ready to hang pos
                 .build();
-        Action hang = drive.actionBuilder(new Pose2d(0.0,-40,90))
-                .waitSeconds(2)
+        Action hang_specimen = drive.actionBuilder(new Pose2d(0.0,-40,90))
+                .waitSeconds(3)
                 .build();
         Action rest = drive.actionBuilder(new Pose2d(0.0, -33, 90))
                 .lineToY(-44) //back up
@@ -313,18 +258,18 @@ public class right_Auto extends LinearOpMode { // extends means inherits from li
 
 
 
-
-
+        // actions that need to happen on init; for instance, a claw_wrist tightening.
+        while (!isStopRequested() && !opModeIsActive()) {
+            telemetry.addData("READY TO RUMBLE", initialPose);
+            telemetry.update();
+        }
         waitForStart();
 
         if(isStopRequested()) return;
 
 
 
-        // actions that need to happen on init; for instance, a claw tightening.
-        while (!isStopRequested() && !opModeIsActive()) {
-            telemetry.update();
-        }
+
 
         telemetry.addData("y", drive.pose.position.y);
         telemetry.addData("heading (deg)", Math.toDegrees(drive.pose.heading.toDouble()));
@@ -332,29 +277,21 @@ public class right_Auto extends LinearOpMode { // extends means inherits from li
 
         telemetry.update();
         if (isStopRequested()) return;
-        Action drive_forward_build;
-        drive_forward_build= drive_forward;
-        Action drive_forward_build1;
-        drive_forward_build1=drive_forward2;
 
         Actions.runBlocking(
-                new SequentialAction(
-                        drive_forward,
-                        new ParallelAction(
-                                claw.elevator_claw_move(),
-                             up.elevator_up_move()
-                        ),
-                       up.elevator_down_move()
+                //new ParallelAction(
+                    new SequentialAction(
+                            new ParallelAction(
+                                    up.elevator_up_move_specimen(),
+                                    Outtake_claw_wrist.elevator_claw_wrist_move_specimen()
+                            ),
+                            drive_forward_hang_specimen // CALIBRATE THIS
+                            //up.elevator_down_move_specimen()  // calibrate this safely
+                            //Outtake_claw.elevator_claw_move_specimen()
 
 
-                        //up.elevator_down_move1(),
-                        //drive_forward_build1,
-                        //up.elevator_down_move()
-
-                        //new ParallelAction(
-                        //up.elevator_down_move(), claw.elevator_Claw_Move()
-                        //)
-                )// it moves but theres like drift itkidk
+                //)
+                )
         );
         telemetry.update();
         sleep(10000);
