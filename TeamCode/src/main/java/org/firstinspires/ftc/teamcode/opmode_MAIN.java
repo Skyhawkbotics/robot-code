@@ -138,11 +138,11 @@ public class opmode_MAIN extends LinearOpMode {
                 if (gamepad2.right_stick_y > 0.1) {
                     //use velocity mode to move so it doesn't we all funky with the smoothing of position mode
                     out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                    out.setVelocity(gamepad2.right_stick_y * 500);
+                    out.setVelocity(gamepad2.right_stick_y * 1000);
                     out_true_target_pos = 0;
                 } else if (gamepad2.right_stick_y < -0.1) {
                     out.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                    out.setVelocity(gamepad2.right_stick_y * 500);
+                    out.setVelocity(gamepad2.right_stick_y * 1000);
                     out_true_target_pos = 0;
                 } else {
                     out.setPower(500);
@@ -225,11 +225,11 @@ public class opmode_MAIN extends LinearOpMode {
                     out.setTargetPosition(0);
                     telemetry.addData("Misumi Slide Moving", true);
                 }
-                if (gamepad2.a) {
+                if (gamepad2.a) { //transfer
                     servo_outtake.setPower(-1);
                     servo_intake.setPower(1);
                 }
-                if (gamepad2.y) {
+                if (gamepad2.y) { //goto hanging position
                         up.setTargetPosition(up_specimen_hang);
                     up.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     servo_outtake_wrist_location = outtake_specimen_hang;
