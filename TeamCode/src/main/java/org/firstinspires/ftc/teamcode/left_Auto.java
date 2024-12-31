@@ -1,0 +1,37 @@
+package org.firstinspires.ftc.teamcode;
+
+public class left_Auto {
+    /* Commands:
+     myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(-12, -61.5, Math.toRadians(90)))
+         //Hanging Specimen (10 points)
+         .lineToY(-32)
+                 .waitSeconds(1)
+         //High Net Sample 1 (8 points)
+         .strafeTo(new Vector2d(-55,-40))
+                 .waitSeconds(.000001)
+                 .turnTo(Math.toRadians(65))
+                         .waitSeconds(1)
+                 .turnTo(Math.toRadians(235))
+                 .strafeTo(new Vector2d(-58,-58))
+                 .waitSeconds(1)
+         //High Net Sample 2 (8 points)
+                 .turnTo(Math.toRadians(90))
+                 .strafeTo(new Vector2d(-58,-40))
+                 .waitSeconds(1)
+                         .turnTo(Math.toRadians(270))
+                         .lineToY(-58)
+                         .turnTo(Math.toRadians(235))
+                         .waitSeconds(1)
+         //High Net Sample 3 (8 points)
+                         .turnTo(Math.toRadians(150))
+                         .strafeTo(new Vector2d(-58,-33))
+                         .turnTo(Math.toRadians(235))
+                         .strafeTo(new Vector2d(-58,-58))
+                         .waitSeconds(1)
+                 //Parking (3 points)
+                 .turnTo(Math.toRadians(0))
+                 .strafeTo(new Vector2d(-35,-12))
+                 .waitSeconds(0.01)
+                 .lineToX(-23.5)
+         .build());*/
+}
