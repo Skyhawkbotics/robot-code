@@ -111,7 +111,7 @@ public class opmode_MAIN extends LinearOpMode {
                 drive.updatePoseEstimate();
 
                 //arm code
-                if (gamepad2.left_stick_y < -0.1) { //left stick -, is going up! (I think it's inverted)
+                if (gamepad2.left_stick_y < -0.1 && Math.abs(arm_upper_lim - up.getCurrentPosition()) > 4 ) { //left stick -, is going up! (I think it's inverted)
                     //use velocity mode to move so it doesn't we all funky with the smoothing of position mode
                     up.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                     up.setVelocity(gamepad2.left_stick_y * -1200);
@@ -217,13 +217,17 @@ public class opmode_MAIN extends LinearOpMode {
 
 
                 //Encoder Transfer Method
-                if (gamepad2.b) { // He needs to hold B down for entire thing to work
-                    //Add a variable and thing for setting the viper slide position to about 250 to avoid smashing stuff together
-                    up.setTargetPosition(2);
+                if (gamepad2.b) {// He needs to hold B down for entire thing to work
+                    up.setTargetPosition(250);
                     servo_outtake_wrist_location = outtake_wrist_pos_transfer;
-                    servo_intake_wrist_location = intake_wrist_pos_transfer;
-                    out.setTargetPosition(0);
-                    telemetry.addData("Misumi Slide Moving", true);
+                    if (Math.abs(250 - up.getCurrentPosition()) < 5) {
+                        servo_intake_wrist_location = intake_wrist_pos_transfer;
+                        out.setTargetPosition(0);
+                        up.setTargetPosition(0);
+                    }
+                    //Add a variable and thing for setting the viper slide position to about 250 to avoid smashing stuff together
+
+                    telemetry.addData("transfer", true);
                 }
                 if (gamepad2.a) { //transfer
                     servo_outtake.setPower(-1);
